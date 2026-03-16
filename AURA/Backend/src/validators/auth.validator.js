@@ -36,5 +36,6 @@ export const loginValidator = [
 
     body("password")
         .notEmpty().withMessage("Password is required"),    
+        
     validate
 ];

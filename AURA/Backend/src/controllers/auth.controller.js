@@ -1,6 +1,6 @@
 import userModel from "../models/user.model.js";
 import jwt from "jsonwebtoken";
-import { sendEmail } from "../services/mail.services.js";
+import { sendEmail } from "../services/mail.service.js";
 
 
 /**
@@ -8,7 +8,6 @@ import { sendEmail } from "../services/mail.services.js";
  * @route POST /api/auth/register
  * @access Public
  * @body { username, email, password }
- * 
  */
 export async function register(req, res) {
 
@@ -30,18 +29,18 @@ export async function register(req, res) {
 
     const emailVerificationToken = jwt.sign({
         email: user.email,
-    },process.env.JWT_SECRET)
+    }, process.env.JWT_SECRET)
 
     await sendEmail({
         to: email,
-        subject: "Welcome to AURA Ai!",
+        subject: "Welcome to Perplexity!",
         html: `
                 <p>Hi ${username},</p>
-                <p>Thank you for registering at <strong>AURA Ai</strong>. We're excited to have you on board!</p>
-                <p>Please verify your email address by clicking the link below:</P>
+                <p>Thank you for registering at <strong>Perplexity</strong>. We're excited to have you on board!</p>
+                <p>Please verify your email address by clicking the link below:</p>
                 <a href="http://localhost:3000/api/auth/verify-email?token=${emailVerificationToken}">Verify Email</a>
-                <p>If you didi not created an account, please ignore the email.</p>
-                <p>Best regards,<br>The AURA Team</p>
+                <p>If you did not create an account, please ignore this email.</p>
+                <p>Best regards,<br>The Perplexity Team</p>
         `
     })
 
@@ -59,30 +58,30 @@ export async function register(req, res) {
 
 }
 
-
 /**
  * @desc Login user and return JWT token
  * @route POST /api/auth/login
- * @access Public   
+ * @access Public
  * @body { email, password }
  */
 export async function login(req, res) {
-    const { email, password } = req.body;   
+    const { email, password } = req.body;
 
-    const user = await userModel.findOne({ email });
+    const user = await userModel.findOne({ email })
 
     if (!user) {
         return res.status(400).json({
-            message: "Invalid credentials",
+            message: "Invalid email or password",
             success: false,
             err: "User not found"
         })
     }
 
     const isPasswordMatch = await user.comparePassword(password);
+
     if (!isPasswordMatch) {
         return res.status(400).json({
-            message: "Invalid credentials",
+            message: "Invalid email or password",
             success: false,
             err: "Incorrect password"
         })
@@ -98,29 +97,28 @@ export async function login(req, res) {
 
     const token = jwt.sign({
         id: user._id,
-        email: user.email,
-    }, process.env.JWT_SECRET, { expiresIn: "7d" })
+        username: user.username,
+    }, process.env.JWT_SECRET, { expiresIn: '7d' })
 
-   res.cookie("token", token)
-       
-   res.status(200).json({
+    res.cookie("token", token)
+
+    res.status(200).json({
         message: "Login successful",
         success: true,
-    user:{
-        id: user._id,
-        username: user.username,
-        email: user.email,
-    }
-   })
+        user: {
+            id: user._id,
+            username: user.username,
+            email: user.email
+        }
+    })
 
-} 
+}
 
 
 /**
- * @desc Get current logged in user's info
+ * @desc Get current logged in user's details
  * @route GET /api/auth/get-me
- * @access Private  
- *  
+ * @access Private
  */
 export async function getMe(req, res) {
     const userId = req.user.id;
@@ -136,13 +134,11 @@ export async function getMe(req, res) {
     }
 
     res.status(200).json({
-        message: " user details fetched successfully",
+        message: "User details fetched successfully",
         success: true,
         user
     })
-
 }
-
 
 
 /**
@@ -151,42 +147,42 @@ export async function getMe(req, res) {
  * @access Public
  * @query { token }
  */
-export async function verifyEmail(req,res) {
-    const {token} = req.query;
+export async function verifyEmail(req, res) {
+    const { token } = req.query;
 
-    try{
+    try {
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-   
-    const user = await userModel.findOne({ email: decoded.email });
 
-    if (!user) {
-        return res.status(400).json({
-            message: "invalid token",
-            success: false,
-            err:"user not found"
-        })
-    }
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    user.verified = true;
 
-    await user.save();
+        const user = await userModel.findOne({ email: decoded.email });
 
-   const html = 
-     `
-        <h1>Email Verified Successfully</h1>
+        if (!user) {
+            return res.status(400).json({
+                message: "Invalid token",
+                success: false,
+                err: "User not found"
+            })
+        }
+
+        user.verified = true;
+
+        await user.save();
+
+        const html =
+            `
+        <h1>Email Verified Successfully!</h1>
         <p>Your email has been verified. You can now log in to your account.</p>
-        <a href="http://localhost:3000/login">Go to Login</a>   
-     `
+        <a href="http://localhost:3000/login">Go to Login</a>
+    `
 
         return res.send(html);
-     } catch(err) {
+    } catch (err) {
         return res.status(400).json({
-            message: "invalid or expired token",
+            message: "Invalid or expired token",
             success: false,
-        })   
-    } 
-
-
-
+            err: err.message
+        })
+    }
 }
