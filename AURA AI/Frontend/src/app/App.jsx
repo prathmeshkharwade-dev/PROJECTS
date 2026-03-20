@@ -9,6 +9,7 @@ const auth = useAuth()
 
 useEffect(() => {
   auth.handleGetMe()
+  
 },[])
 
   return (

@@ -9,6 +9,7 @@ import { sendEmail } from "../services/mail.service.js";
  * @access Public
  * @body { username, email, password }
  */
+
 export async function register(req, res) {
 
     const { username, email, password } = req.body;
