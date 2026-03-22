@@ -34,7 +34,7 @@ export async function register(req, res) {
 
     await sendEmail({
         to: email,
-        subject: "Welcome to Perplexity!",
+        subject: "Welcome to AURA AI!",
         html: `
                 <p>Hi ${username},</p>
                 <p>Thank you for registering at <strong>Perplexity</strong>. We're excited to have you on board!</p>
