@@ -1,13 +1,16 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { itemService } from '../services/itemService'
+import api from '../services/api'
 
 const AppContext = createContext(null)
 
 export function AppProvider({ children }) {
-  const [items,      setItems]      = useState([])
-  const [selectedId, setSelectedId] = useState(null)
-  const [loading,    setLoading]    = useState(false)
-  const [query,      setQuery]      = useState('')
+  const [items,        setItems]        = useState([])
+  const [selectedId,   setSelectedId]   = useState(null)
+  const [loading,      setLoading]      = useState(false)
+  const [query,        setQuery]        = useState('')
+  const [searchResults, setSearchResults] = useState(null)
+  const [searching,    setSearching]    = useState(false)
 
   const token = localStorage.getItem('token')
 
@@ -28,19 +31,41 @@ export function AppProvider({ children }) {
     if (token) fetchItems()
   }, [])
 
+  // Semantic search with debounce
+  useEffect(() => {
+    if (!query.trim()) {
+      setSearchResults(null)
+      return
+    }
+
+    const timer = setTimeout(async () => {
+      setSearching(true)
+      try {
+        const { data } = await api.get(`/search?q=${encodeURIComponent(query)}`)
+        setSearchResults(data)
+      } catch {
+        setSearchResults(null)
+      } finally {
+        setSearching(false)
+      }
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [query])
+
   const addItem    = (item) => setItems(prev => [...prev, item])
   const removeItem = (id)   => setItems(prev => prev.filter(i => (i._id || i.id) !== id))
 
   const filteredItems = query
-    ? items.filter(i =>
+    ? (searchResults || items.filter(i =>
         i.title.toLowerCase().includes(query.toLowerCase()) ||
         i.tags.some(t => t.toLowerCase().includes(query.toLowerCase()))
-      )
+      ))
     : items
 
   return (
     <AppContext.Provider value={{
-      items, filteredItems, loading,
+      items, filteredItems, loading, searching,
       selectedId, setSelectedId,
       query, setQuery,
       addItem, removeItem, fetchItems,
