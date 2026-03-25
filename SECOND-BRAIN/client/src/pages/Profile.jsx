@@ -27,11 +27,13 @@ export default function Profile() {
     navigate('/login')
   }
 
-  const links      = getLinks(items)
-  const totalTags  = [...new Set(items.flatMap(i => i.tags))].length
+  // 🔥 YAHAN FIX KIYA HAI: Fallback for empty items 🔥
+  const safeItems  = items || []
+  const links      = getLinks(safeItems)
+  const totalTags  = [...new Set(safeItems.flatMap(i => i?.tags || []))].length
   const typeStats  = Object.entries(TYPE_CONFIG).map(([type, cfg]) => ({
     ...cfg,
-    count: items.filter(i => i.type === type).length,
+    count: safeItems.filter(i => i?.type === type).length,
   }))
 
   const initials = user?.name?.split(' ').map(n => n[0]).join('').toUpperCase() || '?'
@@ -77,7 +79,7 @@ export default function Profile() {
           {/* Stats */}
           <div className="grid grid-cols-3 gap-3 mb-6">
             {[
-              { label: 'Items',       value: items.length,  color: '#7C6FCD' },
+              { label: 'Items',       value: safeItems.length,  color: '#7C6FCD' },
               { label: 'Connections', value: links.length,  color: '#E879A0' },
               { label: 'Unique Tags', value: totalTags,     color: '#38BDF8' },
             ].map(s => (
@@ -102,7 +104,7 @@ export default function Profile() {
                     style={{ background: 'var(--card)' }}>
                     <div className="h-full rounded-full transition-all"
                       style={{
-                        width: items.length ? `${(t.count / items.length) * 100}%` : '0%',
+                        width: safeItems.length ? `${(t.count / safeItems.length) * 100}%` : '0%',
                         background: t.color,
                       }} />
                   </div>
