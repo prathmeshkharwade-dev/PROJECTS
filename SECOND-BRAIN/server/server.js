@@ -29,6 +29,10 @@ app.use(cors({
 }))
 
 app.use(express.json())
+// Server health check route
+app.get('/', (req, res) => {
+  res.send(' Backend is running perfectly! 🚀')
+})
 
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
