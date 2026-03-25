@@ -7,6 +7,7 @@ import GraphLegend from '../components/Graph/GraphLegend'
 import ExportButton from '../components/Graph/ExportButton'
 import DetailPanel from '../components/Detail/DetailPanel'
 import AddItemModal from '../components/Modal/AddItemModal'
+import UploadModal from '../components/Modal/UploadModal'
 import ResurfaceToast from '../components/Toast/ResurfaceToast'
 import MobileNav from '../components/common/MobileNav'
 import Spinner from '../components/common/Spinner'
@@ -14,10 +15,11 @@ import Spinner from '../components/common/Spinner'
 export default function Home() {
   const navigate = useNavigate()
   const { filteredItems, selectedId, setSelectedId, loading, items, query, setQuery } = useApp()
-  const [showModal,    setShowModal]    = useState(false)
-  const [toastItem,    setToastItem]    = useState(null)
-  const [dark,         setDark]         = useState(true)
-  const [sidebarOpen,  setSidebarOpen]  = useState(false)
+  const [showModal,   setShowModal]   = useState(false)
+  const [showUpload,  setShowUpload]  = useState(false)
+  const [toastItem,   setToastItem]   = useState(null)
+  const [dark,        setDark]        = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
     document.documentElement.classList.toggle('light', !dark)
@@ -41,14 +43,11 @@ export default function Home() {
       {/* ── Topbar ── */}
       <header className="h-14 flex items-center gap-3 px-4 shrink-0 surface">
 
-        {/* Mobile menu button */}
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="md:hidden icon-btn w-9 h-9 rounded-xl"
-        >
+        {/* Mobile menu */}
+        <button onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="md:hidden icon-btn w-9 h-9 rounded-xl">
           <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-              d="M4 6h16M4 12h16M4 18h16" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
 
@@ -77,8 +76,9 @@ export default function Home() {
           />
         </div>
 
-        {/* Desktop right buttons */}
+        {/* Desktop buttons */}
         <div className="hidden md:flex ml-auto items-center gap-2">
+
           <button onClick={() => navigate('/profile')}
             className="icon-btn flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium">
             <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -109,6 +109,17 @@ export default function Home() {
             )}
           </button>
 
+          {/* Upload button */}
+          <button onClick={() => setShowUpload(true)}
+            className="icon-btn flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium">
+            <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+            Upload
+          </button>
+
+          {/* New Item button */}
           <button onClick={() => setShowModal(true)}
             className="glow-btn flex items-center gap-2 px-4 py-2 rounded-xl text-xs">
             <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,10 +130,8 @@ export default function Home() {
         </div>
 
         {/* Mobile theme toggle */}
-        <button
-          onClick={() => setDark(!dark)}
-          className="md:hidden icon-btn w-9 h-9 rounded-xl ml-auto"
-        >
+        <button onClick={() => setDark(!dark)}
+          className="md:hidden icon-btn w-9 h-9 rounded-xl ml-auto">
           {dark ? (
             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -140,52 +149,42 @@ export default function Home() {
       {/* ── Main ── */}
       <div className="flex flex-1 overflow-hidden relative">
 
-        {/* Mobile sidebar overlay */}
+        {/* Mobile overlay */}
         {sidebarOpen && (
-          <div
-            className="md:hidden fixed inset-0 z-40 animate-fade-in"
+          <div className="md:hidden fixed inset-0 z-40 animate-fade-in"
             style={{ background: 'rgba(0,0,0,0.5)' }}
-            onClick={() => setSidebarOpen(false)}
-          />
+            onClick={() => setSidebarOpen(false)} />
         )}
 
-        {/* Sidebar — desktop always visible, mobile drawer */}
-        <div
-          className={`
-            md:relative md:translate-x-0 md:flex
-            fixed inset-y-0 left-0 z-50 flex flex-col
-            transition-transform duration-300 ease-in-out
-            ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-          `}
-          style={{ width: 256 }}
-        >
+        {/* Sidebar */}
+        <div className={`
+          md:relative md:translate-x-0 md:flex
+          fixed inset-y-0 left-0 z-50 flex flex-col
+          transition-transform duration-300 ease-in-out
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        `} style={{ width: 256 }}>
           <Sidebar />
         </div>
 
-        {/* Graph area */}
+        {/* Graph */}
         <main className="flex-1 relative overflow-hidden">
           {loading ? <Spinner /> : (
             <GraphCanvas
               items={filteredItems}
               selectedId={selectedId}
-              onSelect={(id) => {
-                setSelectedId(id)
-                setSidebarOpen(false)
-              }}
+              onSelect={(id) => { setSelectedId(id); setSidebarOpen(false) }}
               dark={dark}
             />
           )}
           <GraphLegend />
           <ExportButton />
-          <div
-            className="hidden md:block absolute bottom-4 right-4 rounded-xl px-3 py-1.5 text-[10px]"
-            style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--tx3)' }}
-          >
+          <div className="hidden md:block absolute bottom-4 right-4 rounded-xl px-3 py-1.5 text-[10px]"
+            style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--tx3)' }}>
             Scroll zoom · Drag pan · Click node
           </div>
         </main>
 
-        {/* Detail panel — full screen on mobile */}
+        {/* Detail panel */}
         {selectedId && (
           <div className="md:relative fixed inset-0 z-40 md:inset-auto md:z-auto animate-slide-in">
             <DetailPanel onClose={() => setSelectedId(null)} />
@@ -193,15 +192,16 @@ export default function Home() {
         )}
       </div>
 
-      {/* Mobile bottom nav */}
+      {/* Mobile nav */}
       <MobileNav
         sidebarOpen={sidebarOpen}
         onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
         onNewItem={() => setShowModal(true)}
       />
 
-      {showModal && <AddItemModal onClose={() => setShowModal(false)} />}
-      {toastItem && <ResurfaceToast item={toastItem} onDismiss={() => setToastItem(null)} />}
+      {showModal  && <AddItemModal  onClose={() => setShowModal(false)} />}
+      {showUpload && <UploadModal   onClose={() => setShowUpload(false)} />}
+      {toastItem  && <ResurfaceToast item={toastItem} onDismiss={() => setToastItem(null)} />}
     </div>
   )
 }
