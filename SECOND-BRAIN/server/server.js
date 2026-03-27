@@ -1,50 +1,25 @@
-import express      from 'express'
-import cors         from 'cors'
-import dotenv       from 'dotenv'
-import path         from 'path'
-import { fileURLToPath } from 'url'
-import connectDB    from './config/database.js'
-import errorHandler from './middleware/errorHandler.js'
-import routeAuth        from './routes/routeAuth.js'
-import routeItems       from './routes/routeItems.js'
-import routeAI          from './routes/routeAI.js'
-import routeSearch      from './routes/routeSearch.js'
-import routeCollections from './routes/routeCollections.js'
-import routeUpload      from './routes/routeUpload.js'
+import axios from 'axios'
 
-dotenv.config()
-connectDB()
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname  = path.dirname(__filename)
-
-const app = express()
-
-app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'https://second-brain-frontend-9lyf.onrender.com'
-  ],
-  credentials: true 
-}))
-
-app.use(express.json())
-// Server health check route
-app.get('/', (req, res) => {
-  res.send(' Backend is running perfectly! 🚀')
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || 'https://second-brain-server-jus1.onrender.com/api',
 })
 
-// Serve uploaded files
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
+api.interceptors.request.use(config => {
+  const token = localStorage.getItem('token')
+  if (token) config.headers.Authorization = `Bearer ${token}`
+  return config
+})
 
-app.use('/api/auth',        routeAuth)
-app.use('/api/items',       routeItems)
-app.use('/api/ai',          routeAI)
-app.use('/api/search',      routeSearch)
-app.use('/api/collections', routeCollections)
-app.use('/api/upload',      routeUpload)
+api.interceptors.response.use(
+  res => res,
+  err => {
+    if (err.response?.status === 401) {
+      localStorage.removeItem('token')
+      window.location.href = '/login'
+    }
+    return Promise.reject(err)
+  }
+)
 
-app.use(errorHandler)
+export default api
 
-const PORT = process.env.PORT || 3000
-app.listen(PORT, () => console.log(`🚀 Server on http://localhost:${PORT}`))
