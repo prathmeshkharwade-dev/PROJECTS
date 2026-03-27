@@ -5,19 +5,24 @@ const api = axios.create({
     withCredentials: true
 })
 
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        return Promise.reject(error)
+    }
+)
+
 export async function register({ email, password, username }) {
     const response = await api.post("/api/auth/register", {
         email, password, username
     })
-
     return response.data
 }
 
-export async function login({ email, username, password }) {
+export async function login({ email, password }) {
     const response = await api.post("/api/auth/login", {
-        email, username, password
+        email, password
     })
-
     return response.data
 }
 
