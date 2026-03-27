@@ -26,50 +26,7 @@
 | Embeddings | HuggingFace |
 | Auth | JWT |
 
-## 🚀 Setup
 
-### 1. Clone karo
-```bash
-git clone https://github.com/YOUR_USERNAME/second-brain.git
-cd second-brain
-```
-
-### 2. Server setup
-```bash
-cd server
-npm install
-```
-
-`server/.env` banao:
-```env
-PORT=3000
-MONGO_URI=your_mongodb_uri
-JWT_SECRET=your_secret
-GROQ_API_KEY=your_groq_key
-PINECONE_API_KEY=your_pinecone_key
-PINECONE_INDEX=second-brain
-HF_TOKEN=your_huggingface_token
-```
-
-### 3. Client setup
-```bash
-cd client
-npm install
-```
-
-`client/.env` banao:
-```env
-VITE_API_URL=http://localhost:3000/api
-```
-
-### 4. Run karo
-```bash
-# Terminal 1
-cd server && npm run dev
-
-# Terminal 2  
-cd client && npm run dev
-```
 
 ## 📸 Screenshots
 
