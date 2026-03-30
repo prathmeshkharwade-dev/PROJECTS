@@ -7,4 +7,6 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  // YEH LINE ADD KARNI HAI 👇
+  base: '/',
 })
