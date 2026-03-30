@@ -11,7 +11,7 @@ export default function Login() {
   // Agar website localhost par hai toh local URL, warna Render ka live URL
   const API_BASE_URL = window.location.hostname === "localhost" 
     ? "http://localhost:5000" 
-    : "https://your-backend-name.onrender.com"; // 👈 Yahan apna Render backend link daalein
+    : "https://negotix-backend.onrender.com"; // 
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
