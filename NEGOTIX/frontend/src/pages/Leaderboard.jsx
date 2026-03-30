@@ -9,17 +9,48 @@ import { getEarnedBadges, buildStats, BADGES } from "../utils/badges.js";
 
 export default function Leaderboard() {
   const navigate = useNavigate();
-  const [entries,     setEntries]     = useState([]);
+  const [entries,      setEntries]     = useState([]);
   const [showConfirm, setShowConfirm] = useState(false);
   const [earnedBadges, setEarnedBadges] = useState([]);
 
-  // Load leaderboard on mount
+  // ── FIX: Dynamic API URL for Deployment ──
+  const API_BASE_URL = window.location.hostname === "localhost" 
+    ? "http://localhost:5000" 
+    : "https://negotix-backend.onrender.com"; 
+
+  // Fetch global leaderboard from MongoDB and personal badges from Local Storage
   useEffect(() => {
-    const data = getLeaderboard();
-    setEntries(data);
-    const stats  = buildStats(data);
+    const fetchGlobalLeaderboard = async () => {
+      try {
+        // ── FIX: Uses Dynamic URL instead of hardcoded localhost ──
+        const response = await fetch(`${API_BASE_URL}/api/leaderboard`);
+        const dbData = await response.json();
+        
+        // Map database fields to match your beautiful table UI
+        const formattedData = dbData.map(dbEntry => ({
+          id: dbEntry._id,
+          playerName: dbEntry.username,
+          date: new Date(dbEntry.createdAt).toLocaleDateString(),
+          productName: dbEntry.productName || "Unknown", 
+          savings: dbEntry.savedAmount || 0,              
+          savingsPercent: dbEntry.score, 
+          difficulty: dbEntry.difficulty || "medium",   
+          rounds: dbEntry.rounds || "-"                  
+        }));
+        
+        setEntries(formattedData);
+      } catch (error) {
+        console.error("Error fetching leaderboard from database:", error);
+      }
+    };
+
+    fetchGlobalLeaderboard();
+
+    // Load personal badges from local storage so achievements remain intact
+    const localData = getLeaderboard();
+    const stats  = buildStats(localData);
     setEarnedBadges(getEarnedBadges(stats));
-  }, []);
+  }, [API_BASE_URL]);
 
   const handleClear = () => {
     clearLeaderboard();
@@ -30,10 +61,13 @@ export default function Leaderboard() {
   const getMedal = (i) =>
     i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`;
 
-  const getDiffStyle = (diff) =>
-    diff === "easy"   ? "text-emerald-400 bg-emerald-400/10 border-emerald-400/30" :
-    diff === "medium" ? "text-amber-400   bg-amber-400/10   border-amber-400/30"   :
-                        "text-red-400     bg-red-400/10     border-red-400/30";
+  const getDiffStyle = (diff) => {
+    const d = diff?.toLowerCase();
+    return d === "easy"   ? "text-emerald-400 bg-emerald-400/10 border-emerald-400/30" :
+           d === "medium" ? "text-amber-400   bg-amber-400/10   border-amber-400/30"   :
+           d === "hard"   ? "text-red-400     bg-red-400/10     border-red-400/30"     :
+                            "text-slate-400   bg-slate-800      border-slate-700";
+  };
 
   const getRowStyle = (i) =>
     i === 0 ? "border-amber-400/40   bg-amber-400/5"   :
@@ -65,14 +99,7 @@ export default function Leaderboard() {
             >
               🚀 Play Now
             </button>
-            {entries.length > 0 && (
-              <button
-                onClick={() => setShowConfirm(true)}
-                className="px-5 py-2.5 rounded-xl text-sm font-semibold text-red-400 border border-red-400/30 bg-red-400/10 hover:bg-red-400/20 transition-all"
-              >
-                🗑️ Clear
-              </button>
-            )}
+            
           </div>
         </div>
 
@@ -131,7 +158,6 @@ export default function Leaderboard() {
                 <span className="flex-1 h-px bg-slate-800" />
               </p>
 
-              {/* Table Header */}
               <div className="grid grid-cols-[50px_1fr_1fr_90px_70px_80px_70px] gap-3 px-4 py-3 mb-2 text-xs font-bold uppercase tracking-wider text-slate-600">
                 <span>Rank</span>
                 <span>Player</span>
@@ -142,7 +168,6 @@ export default function Leaderboard() {
                 <span>Rounds</span>
               </div>
 
-              {/* Rows */}
               <div className="flex flex-col gap-2">
                 {entries.map((entry, i) => {
                   const perf = getPerformanceLabel(entry.savingsPercent);
@@ -151,12 +176,10 @@ export default function Leaderboard() {
                       key={entry.id}
                       className={`grid grid-cols-[50px_1fr_1fr_90px_70px_80px_70px] gap-3 items-center px-4 py-4 rounded-xl border transition-all hover:brightness-110 ${getRowStyle(i)}`}
                     >
-                      {/* Rank */}
                       <span className="text-xl font-bold">
                         {getMedal(i)}
                       </span>
 
-                      {/* Player */}
                       <div>
                         <p className="font-bold text-sm text-white">
                           {entry.playerName}
@@ -166,17 +189,14 @@ export default function Leaderboard() {
                         </p>
                       </div>
 
-                      {/* Product */}
                       <p className="text-sm text-slate-400 truncate">
                         {entry.productName}
                       </p>
 
-                      {/* Saved */}
                       <p className="text-sm font-bold text-emerald-400">
                         ${entry.savings}
                       </p>
 
-                      {/* Percent */}
                       <p
                         className="text-sm font-bold"
                         style={{ color: perf.color }}
@@ -184,14 +204,12 @@ export default function Leaderboard() {
                         {entry.savingsPercent}%
                       </p>
 
-                      {/* Difficulty */}
                       <span
                         className={`text-xs font-bold px-2 py-1 rounded-full border text-center ${getDiffStyle(entry.difficulty)}`}
                       >
                         {entry.difficulty.toUpperCase()}
                       </span>
 
-                      {/* Rounds */}
                       <p className="text-sm text-slate-500">
                         {entry.rounds}
                       </p>
@@ -208,7 +226,6 @@ export default function Leaderboard() {
                 <span className="flex-1 h-px bg-slate-800" />
               </p>
 
-              {/* Badge Progress */}
               <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 mb-4">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-xs text-slate-500">
@@ -228,7 +245,6 @@ export default function Leaderboard() {
                 </div>
               </div>
 
-              {/* Badges Grid */}
               <div className="flex flex-col gap-2">
                 {BADGES.map((badge) => {
                   const isEarned = earnedBadges.some((b) => b.id === badge.id);

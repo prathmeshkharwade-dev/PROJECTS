@@ -18,6 +18,11 @@ export default function Game() {
     if (!product || !difficulty || !playerName) navigate("/");
   }, []);
 
+  // ── FIX: Dynamic API URL for Deployment ──
+  const API_BASE_URL = window.location.hostname === "localhost" 
+    ? "http://localhost:5000" 
+    : "https://negotix-backend.onrender.com"; 
+
   const seller = sellerPrompts?.[difficulty] || { name: "Seller", avatar: "🧔" };
 
   // ── STATE ─────────────────────────────────────
@@ -29,7 +34,7 @@ export default function Game() {
   const [gameOver,      setGameOver]      = useState(false);
   const [gameResult,    setGameResult]    = useState(null);
   const [earnedBadges,  setEarnedBadges]  = useState([]);
-  const [message,       setMessage]       = useState("");
+  const [message,        setMessage]       = useState("");
   const [showTactics,   setShowTactics]   = useState(false);
   const [timeLeft,      setTimeLeft]      = useState(60);
   const [timerActive,   setTimerActive]   = useState(true);
@@ -107,9 +112,35 @@ export default function Game() {
   };
 
   // ── END GAME ──────────────────────────────────
-  const endGame = (finalPrice, totalRounds) => {
+  const endGame = async (finalPrice, totalRounds) => {
     setGameOver(true);
     setTimerActive(false);
+
+    const savingsPercent = Math.round(((product.listPrice - finalPrice) / product.listPrice) * 100);
+
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        // ── FIX: Uses Dynamic API URL ──
+        await fetch(`${API_BASE_URL}/api/leaderboard`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}` 
+          },
+          body: JSON.stringify({ 
+            score: savingsPercent,
+            productName: product.name,      
+            savedAmount: product.listPrice - finalPrice,
+            rounds: totalRounds,             
+            difficulty: difficulty           
+          }),
+        });
+        console.log("Score saved to MongoDB!");
+      } catch (error) {
+        console.error("Failed to save score to DB", error);
+      }
+    }
 
     const entry = saveToLeaderboard({
       playerName, productName: product.name,
@@ -123,9 +154,9 @@ export default function Game() {
 
     setGameResult({
       finalPrice,
-      savings:        product.listPrice - finalPrice,
-      savingsPercent: Math.round(((product.listPrice - finalPrice) / product.listPrice) * 100),
-      rounds:         totalRounds,
+      savings:         product.listPrice - finalPrice,
+      savingsPercent: savingsPercent,
+      rounds:          totalRounds,
       entry,
     });
   };
@@ -174,7 +205,7 @@ export default function Game() {
     { title: "Walk Away 🚶",         example: "This is over my budget. I might have to look elsewhere sadly." },
     { title: "Bulk Hint 📦",         example: "If the price is right, I might take 2-3 of these!" },
     { title: "Emotional Appeal 🥺",  example: "This is a gift for my father who always wanted one of these." },
-    { title: "Anchor Low 🎯",        example: "I was thinking around a much lower price — what do you think?" },
+    { title: "Anchor Low 🎯",         example: "I was thinking around a much lower price — what do you think?" },
   ];
 
   if (!product) return null;
@@ -189,7 +220,6 @@ export default function Game() {
           Negotix
         </button>
 
-        {/* Product Info */}
         <div className="flex items-center gap-3">
           <span className="text-2xl">{product.emoji}</span>
           <div>
@@ -198,7 +228,6 @@ export default function Game() {
           </div>
         </div>
 
-        {/* Player + Difficulty */}
         <div className="flex items-center gap-3">
           <span className="text-sm text-slate-400">👤 {playerName}</span>
           <span className={`text-xs font-bold px-3 py-1 rounded-full border
@@ -219,7 +248,6 @@ export default function Game() {
         {/* ── LEFT PANEL ──────────────────── */}
         <div className="flex flex-col gap-4">
 
-          {/* Mood Card */}
           <div className={`flex items-center gap-4 p-4 rounded-2xl border ${mood.bg}`}>
             <span className="text-5xl">{seller.avatar}</span>
             <div className="flex-1 min-w-0">
@@ -231,9 +259,8 @@ export default function Game() {
             </div>
           </div>
 
-          {/* Timer */}
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center gap-4">
-            <div className={`w-14 h-14 rounded-full border-2 flex flex-col items-center justify-centershrink-0 ${timerColor}`}>
+            <div className={`w-14 h-14 rounded-full border-2 flex flex-col items-center justify-center shrink-0 ${timerColor}`}>
               <span className="text-lg font-bold leading-none">{timeLeft}</span>
               <span className="text-xs opacity-60">sec</span>
             </div>
@@ -251,7 +278,6 @@ export default function Game() {
             </div>
           </div>
 
-          {/* Price Bar */}
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
             <div className="flex justify-between items-center mb-3">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">💰 Price Progress</span>
@@ -273,7 +299,6 @@ export default function Game() {
             </p>
           </div>
 
-          {/* Deal Meter */}
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
             <div className="flex justify-between items-center mb-3">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">🎯 Deal Meter</span>
@@ -306,7 +331,6 @@ export default function Game() {
             </div>
           </div>
 
-          {/* Accept Deal Button */}
           {!gameOver && (
             <button
               onClick={() => endGame(currentPrice, messages.length)}
@@ -320,7 +344,6 @@ export default function Game() {
         {/* ── RIGHT PANEL ─────────────────── */}
         <div className="flex flex-col gap-4">
 
-          {/* Chat Box */}
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 overflow-y-auto flex flex-col gap-4">
             {messages.length === 0 && (
               <div className="flex-1 flex items-center justify-center">
@@ -332,7 +355,7 @@ export default function Game() {
 
             {messages.map((msg, i) => (
               <div key={i} className={`flex items-end gap-3 ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
-                <span className="text-2xlshrink-0">
+                <span className="text-2xl shrink-0">
                   {msg.role === "user" ? "👤" : seller.avatar}
                 </span>
                 <div className={`max-w-[72%] px-4 py-3 rounded-2xl text-sm leading-relaxed
@@ -350,7 +373,6 @@ export default function Game() {
               </div>
             ))}
 
-            {/* Loading dots */}
             {isLoading && (
               <div className="flex items-end gap-3">
                 <span className="text-2xl">{seller.avatar}</span>
@@ -368,10 +390,8 @@ export default function Game() {
             <div ref={chatEndRef} />
           </div>
 
-          {/* Message Input */}
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
 
-            {/* Top Row */}
             <div className="flex justify-between items-center mb-3">
               <span className="text-xs text-slate-600 font-medium">Round {round} of {MAX_ROUNDS}</span>
               <button
@@ -382,7 +402,6 @@ export default function Game() {
               </button>
             </div>
 
-            {/* Tactics Panel */}
             {showTactics && (
               <div className="bg-slate-800 rounded-xl p-3 mb-3">
                 <p className="text-xs font-bold text-white mb-3">🎯 Click a tactic to use it:</p>
@@ -401,7 +420,6 @@ export default function Game() {
               </div>
             )}
 
-            {/* Input Row */}
             <div className="flex gap-3 items-end">
               <textarea
                 rows={2}
@@ -415,14 +433,13 @@ export default function Game() {
               <button
                 onClick={handleSend}
                 disabled={!message.trim() || isLoading || gameOver}
-                className="w-12 h-12 rounded-xl bg-cyan-400 text-slate-950 font-bold text-xl flex items-center justify-centershrink-0 hover:bg-cyan-300 transition-all hover:scale-105 disabled:opacity-30 disabled:cursor-not-allowed disabled:scale-100"
+                className="w-12 h-12 rounded-xl bg-cyan-400 text-slate-950 font-bold text-xl flex items-center justify-center shrink-0 hover:bg-cyan-300 transition-all hover:scale-105 disabled:opacity-30 disabled:cursor-not-allowed disabled:scale-100"
               >
                 {isLoading ? "⏳" : "→"}
               </button>
             </div>
           </div>
 
-          {/* ── RESULT CARD ─────────────────── */}
           {gameOver && gameResult && (
             <div className="bg-slate-900 border border-cyan-400/40 rounded-2xl p-6 shadow-[0_0_40px_rgba(34,211,238,0.08)]">
               <h2 className="text-2xl font-extrabold text-center text-white mb-6"
@@ -430,7 +447,6 @@ export default function Game() {
                 🎉 Negotiation Complete!
               </h2>
 
-              {/* Stats */}
               <div className="grid grid-cols-4 gap-3 mb-6">
                 {[
                   { label: "Final Price", val: `$${gameResult.finalPrice}`, color: "text-white"       },
@@ -448,7 +464,6 @@ export default function Game() {
                 ))}
               </div>
 
-              {/* Performance Label */}
               <div className="text-center mb-6">
                 <span className="text-lg font-bold"
                   style={{ color: getPerformanceLabel(gameResult.savingsPercent).color }}>
@@ -456,7 +471,6 @@ export default function Game() {
                 </span>
               </div>
 
-              {/* Badges */}
               {earnedBadges.length > 0 && (
                 <div className="mb-6">
                   <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">
@@ -472,7 +486,6 @@ export default function Game() {
                 </div>
               )}
 
-              {/* Buttons */}
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => navigate("/leaderboard")}
