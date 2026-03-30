@@ -44,12 +44,12 @@ export async function chatWithSeller(req, res) {
       });
     }
 
-    // Build system prompt based on product and difficulty
+    // Build system prompt
     const systemPrompt = buildSellerPrompt(product, difficulty, round || 1);
 
-    // Format conversation history for Groq
+    // Safe history handling (FIXED)
     const messages = [
-      ...history.map((msg) => ({
+      ...(history || []).map((msg) => ({
         role: msg.role,
         content: msg.content,
       })),
@@ -69,30 +69,34 @@ export async function chatWithSeller(req, res) {
         },
         ...messages,
       ],
-      temperature: 0.8, // Creative but controlled responses
-      max_tokens: 200,  // Keep responses short
+      temperature: 0.8,
+      max_tokens: 200,
     });
 
-    // Extract raw response
-    const rawResponse = completion.choices[0].message.content;
+    // Safe response handling (FIXED)
+    const rawResponse =
+      completion?.choices?.[0]?.message?.content || "No response from AI";
 
-    // Parse important values from response
+    // Extract values
     const price = extractPrice(rawResponse);
     const mood = extractMood(rawResponse);
     const cleanedMessage = cleanMessage(rawResponse);
 
-    // Send response to frontend
+    // Send response
     res.json({
       message: cleanedMessage,
-      price: price,
-      mood: mood,
-      round: round,
+      price,
+      mood,
+      round,
     });
 
   } catch (error) {
-    console.error("Groq API Error:", error.message);
+    // Better logging (FIXED)
+    console.error("Groq API Error:", error);
+
     res.status(500).json({
       error: "Could not connect to AI seller. Please try again.",
+      details: error.message,
     });
   }
 }
