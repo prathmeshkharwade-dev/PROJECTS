@@ -1,353 +1,270 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getLeaderboard, clearLeaderboard, getPerformanceLabel } from "../utils/leaderboard.js";
+import {
+  getLeaderboard,
+  clearLeaderboard,
+  getPerformanceLabel,
+} from "../utils/leaderboard.js";
+import { getEarnedBadges, buildStats, BADGES } from "../utils/badges.js";
 
-function Leaderboard() {
+export default function Leaderboard() {
   const navigate = useNavigate();
-  const [entries, setEntries] = useState([]);
+  const [entries,     setEntries]     = useState([]);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [earnedBadges, setEarnedBadges] = useState([]);
 
   // Load leaderboard on mount
   useEffect(() => {
     const data = getLeaderboard();
     setEntries(data);
+    const stats  = buildStats(data);
+    setEarnedBadges(getEarnedBadges(stats));
   }, []);
 
-  // Clear leaderboard
   const handleClear = () => {
     clearLeaderboard();
     setEntries([]);
     setShowConfirm(false);
   };
 
-  // Rank medals
-  const getMedal = (index) => {
-    if (index === 0) return "🥇";
-    if (index === 1) return "🥈";
-    if (index === 2) return "🥉";
-    return `#${index + 1}`;
-  };
+  const getMedal = (i) =>
+    i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`;
 
-  // Difficulty color
-  const getDiffColor = (diff) => {
-    if (diff === "easy") return "#22C55E";
-    if (diff === "medium") return "#F97316";
-    return "#EF4444";
-  };
+  const getDiffStyle = (diff) =>
+    diff === "easy"   ? "text-emerald-400 bg-emerald-400/10 border-emerald-400/30" :
+    diff === "medium" ? "text-amber-400   bg-amber-400/10   border-amber-400/30"   :
+                        "text-red-400     bg-red-400/10     border-red-400/30";
+
+  const getRowStyle = (i) =>
+    i === 0 ? "border-amber-400/40   bg-amber-400/5"   :
+    i === 1 ? "border-slate-400/40   bg-slate-400/5"   :
+    i === 2 ? "border-orange-400/40  bg-orange-400/5"  :
+              "border-slate-800      bg-slate-900";
 
   return (
-    <div style={styles.container}>
-      {/* Header */}
-      <div style={styles.header}>
-        <button
-          style={styles.backBtn}
-          onClick={() => navigate("/")}
-        >
-          ← Back
-        </button>
-        <h1 style={styles.title}>🏆 Leaderboard</h1>
-        <button
-          style={styles.clearBtn}
-          onClick={() => setShowConfirm(true)}
-        >
-          🗑️ Clear
-        </button>
-      </div>
+    <div className="min-h-screen bg-slate-950 text-white pt-16">
+      <div className="max-w-6xl mx-auto px-6 py-10">
 
-      {/* Confirm Clear */}
-      {showConfirm && (
-        <div style={styles.confirmBox}>
-          <p style={styles.confirmText}>
-            ⚠️ Are you sure? All scores will be deleted!
-          </p>
-          <div style={styles.confirmBtns}>
-            <button style={styles.confirmYes} onClick={handleClear}>
-              Yes, Clear!
-            </button>
-            <button
-              style={styles.confirmNo}
-              onClick={() => setShowConfirm(false)}
+        {/* ── HEADER ──────────────────────── */}
+        <div className="flex items-center justify-between mb-10">
+          <div>
+            <h1
+              className="text-4xl font-extrabold text-white mb-1"
+              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
             >
-              Cancel
+              🏆 Leaderboard
+            </h1>
+            <p className="text-slate-500 text-sm">
+              Top negotiators ranked by savings
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate("/")}
+              className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-cyan-400 text-slate-950 hover:bg-cyan-300 transition-all"
+            >
+              🚀 Play Now
+            </button>
+            {entries.length > 0 && (
+              <button
+                onClick={() => setShowConfirm(true)}
+                className="px-5 py-2.5 rounded-xl text-sm font-semibold text-red-400 border border-red-400/30 bg-red-400/10 hover:bg-red-400/20 transition-all"
+              >
+                🗑️ Clear
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* ── CONFIRM CLEAR ───────────────── */}
+        {showConfirm && (
+          <div className="mb-6 p-5 rounded-2xl bg-slate-900 border border-red-400/30">
+            <p className="text-sm text-red-300 mb-4 text-center">
+              ⚠️ Are you sure? All scores will be permanently deleted!
+            </p>
+            <div className="flex justify-center gap-3">
+              <button
+                onClick={handleClear}
+                className="px-6 py-2.5 rounded-xl text-sm font-bold bg-red-500 text-white hover:bg-red-400 transition-all"
+              >
+                Yes, Delete!
+              </button>
+              <button
+                onClick={() => setShowConfirm(false)}
+                className="px-6 py-2.5 rounded-xl text-sm font-bold bg-slate-700 text-white hover:bg-slate-600 transition-all"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── EMPTY STATE ─────────────────── */}
+        {entries.length === 0 && (
+          <div className="text-center py-24">
+            <span className="text-7xl block mb-5">🛒</span>
+            <h2
+              className="text-2xl font-bold text-white mb-3"
+              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+            >
+              No scores yet!
+            </h2>
+            <p className="text-slate-500 mb-8 text-sm">
+              Complete a negotiation to appear on the leaderboard.
+            </p>
+            <button
+              onClick={() => navigate("/")}
+              className="px-8 py-4 rounded-xl font-bold bg-cyan-400 text-slate-950 hover:bg-cyan-300 transition-all hover:shadow-[0_4px_20px_rgba(34,211,238,0.3)]"
+            >
+              🚀 Start Playing!
             </button>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Empty State */}
-      {entries.length === 0 && (
-        <div style={styles.emptyState}>
-          <p style={styles.emptyEmoji}>🛒</p>
-          <p style={styles.emptyTitle}>No scores yet!</p>
-          <p style={styles.emptyDesc}>
-            Complete a negotiation to appear on the leaderboard.
-          </p>
-          <button
-            style={styles.playBtn}
-            onClick={() => navigate("/")}
-          >
-            🚀 Start Playing!
-          </button>
-        </div>
-      )}
+        {entries.length > 0 && (
+          <div className="grid grid-cols-[1fr_320px] gap-6">
 
-      {/* Leaderboard Table */}
-      {entries.length > 0 && (
-        <div style={styles.tableContainer}>
-          {/* Table Header */}
-          <div style={styles.tableHeader}>
-            <span style={{ ...styles.headerCell, width: "60px" }}>Rank</span>
-            <span style={{ ...styles.headerCell, flex: 1 }}>Player</span>
-            <span style={{ ...styles.headerCell, flex: 1 }}>Product</span>
-            <span style={{ ...styles.headerCell, width: "100px" }}>Saved</span>
-            <span style={{ ...styles.headerCell, width: "80px" }}>%</span>
-            <span style={{ ...styles.headerCell, width: "80px" }}>Diff</span>
-            <span style={{ ...styles.headerCell, width: "80px" }}>Rounds</span>
-            <span style={{ ...styles.headerCell, width: "100px" }}>Badge</span>
-          </div>
+            {/* ── LEFT: SCORES TABLE ──────── */}
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-slate-600 mb-4 flex items-center gap-3">
+                Rankings
+                <span className="flex-1 h-px bg-slate-800" />
+              </p>
 
-          {/* Table Rows */}
-          {entries.map((entry, index) => {
-            const perf = getPerformanceLabel(entry.savingsPercent);
-            return (
-              <div
-                key={entry.id}
-                style={{
-                  ...styles.tableRow,
-                  background: index === 0
-                    ? "#1C1400"
-                    : index === 1
-                    ? "#0F1A0F"
-                    : index === 2
-                    ? "#0F1118"
-                    : "#0F172A",
-                  border: `1px solid ${
-                    index === 0
-                      ? "#F59E0B"
-                      : index === 1
-                      ? "#94A3B8"
-                      : index === 2
-                      ? "#B45309"
-                      : "#1E293B"
-                  }`,
-                }}
-              >
-                {/* Rank */}
-                <span style={{ ...styles.cell, width: "60px", fontSize: "20px" }}>
-                  {getMedal(index)}
-                </span>
-
-                {/* Player */}
-                <span style={{ ...styles.cell, flex: 1, fontWeight: "700" }}>
-                  {entry.playerName}
-                </span>
-
-                {/* Product */}
-                <span style={{ ...styles.cell, flex: 1, color: "#94A3B8" }}>
-                  {entry.productName}
-                </span>
-
-                {/* Saved */}
-                <span style={{ ...styles.cell, width: "100px", color: "#22C55E", fontWeight: "700" }}>
-                  ${entry.savings}
-                </span>
-
-                {/* Percent */}
-                <span style={{ ...styles.cell, width: "80px", color: perf.color, fontWeight: "700" }}>
-                  {entry.savingsPercent}%
-                </span>
-
-                {/* Difficulty */}
-                <span
-                  style={{
-                    ...styles.cell,
-                    width: "80px",
-                    color: getDiffColor(entry.difficulty),
-                    fontWeight: "600",
-                    fontSize: "11px",
-                  }}
-                >
-                  {entry.difficulty.toUpperCase()}
-                </span>
-
-                {/* Rounds */}
-                <span style={{ ...styles.cell, width: "80px", color: "#64748B" }}>
-                  {entry.rounds}
-                </span>
-
-                {/* Badge */}
-                <span style={{ ...styles.cell, width: "100px", fontSize: "11px", color: perf.color }}>
-                  {perf.label}
-                </span>
+              {/* Table Header */}
+              <div className="grid grid-cols-[50px_1fr_1fr_90px_70px_80px_70px] gap-3 px-4 py-3 mb-2 text-xs font-bold uppercase tracking-wider text-slate-600">
+                <span>Rank</span>
+                <span>Player</span>
+                <span>Product</span>
+                <span>Saved</span>
+                <span>%</span>
+                <span>Diff</span>
+                <span>Rounds</span>
               </div>
-            );
-          })}
-        </div>
-      )}
 
-      {/* Play Again Button */}
-      {entries.length > 0 && (
-        <button
-          style={styles.playAgainBtn}
-          onClick={() => navigate("/")}
-        >
-          🚀 Play Again
-        </button>
-      )}
+              {/* Rows */}
+              <div className="flex flex-col gap-2">
+                {entries.map((entry, i) => {
+                  const perf = getPerformanceLabel(entry.savingsPercent);
+                  return (
+                    <div
+                      key={entry.id}
+                      className={`grid grid-cols-[50px_1fr_1fr_90px_70px_80px_70px] gap-3 items-center px-4 py-4 rounded-xl border transition-all hover:brightness-110 ${getRowStyle(i)}`}
+                    >
+                      {/* Rank */}
+                      <span className="text-xl font-bold">
+                        {getMedal(i)}
+                      </span>
+
+                      {/* Player */}
+                      <div>
+                        <p className="font-bold text-sm text-white">
+                          {entry.playerName}
+                        </p>
+                        <p className="text-xs text-slate-600">
+                          {entry.date}
+                        </p>
+                      </div>
+
+                      {/* Product */}
+                      <p className="text-sm text-slate-400 truncate">
+                        {entry.productName}
+                      </p>
+
+                      {/* Saved */}
+                      <p className="text-sm font-bold text-emerald-400">
+                        ${entry.savings}
+                      </p>
+
+                      {/* Percent */}
+                      <p
+                        className="text-sm font-bold"
+                        style={{ color: perf.color }}
+                      >
+                        {entry.savingsPercent}%
+                      </p>
+
+                      {/* Difficulty */}
+                      <span
+                        className={`text-xs font-bold px-2 py-1 rounded-full border text-center ${getDiffStyle(entry.difficulty)}`}
+                      >
+                        {entry.difficulty.toUpperCase()}
+                      </span>
+
+                      {/* Rounds */}
+                      <p className="text-sm text-slate-500">
+                        {entry.rounds}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* ── RIGHT: BADGES ───────────── */}
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-slate-600 mb-4 flex items-center gap-3">
+                Achievements
+                <span className="flex-1 h-px bg-slate-800" />
+              </p>
+
+              {/* Badge Progress */}
+              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 mb-4">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs text-slate-500">
+                    Badges Earned
+                  </span>
+                  <span className="text-xs font-bold text-cyan-400">
+                    {earnedBadges.length} / {BADGES.length}
+                  </span>
+                </div>
+                <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-cyan-400 rounded-full transition-all duration-500"
+                    style={{
+                      width: `${(earnedBadges.length / BADGES.length) * 100}%`,
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Badges Grid */}
+              <div className="flex flex-col gap-2">
+                {BADGES.map((badge) => {
+                  const isEarned = earnedBadges.some((b) => b.id === badge.id);
+                  return (
+                    <div
+                      key={badge.id}
+                      className={`p-3 rounded-xl border transition-all ${
+                        isEarned
+                          ? "border-cyan-400/30 bg-cyan-400/5"
+                          : "border-slate-800 bg-slate-900 opacity-50"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <p
+                          className={`text-sm font-bold ${isEarned ? "text-white" : "text-slate-500"}`}
+                          style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+                        >
+                          {badge.title}
+                        </p>
+                        <span
+                          className={`text-xs font-bold ${isEarned ? "text-cyan-400" : "text-slate-600"}`}
+                        >
+                          {isEarned ? "✅" : "🔒"}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 leading-snug">
+                        {badge.description}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
-
-const styles = {
-  container: {
-    minHeight: "100vh",
-    background: "#020617",
-    color: "#F1F5F9",
-    padding: "24px",
-    fontFamily: "sans-serif",
-    maxWidth: "1100px",
-    margin: "0 auto",
-  },
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "24px",
-  },
-  backBtn: {
-    background: "#1E293B",
-    color: "#F1F5F9",
-    border: "1px solid #334155",
-    padding: "8px 16px",
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontSize: "14px",
-  },
-  title: {
-    fontSize: "32px",
-    fontWeight: "bold",
-    margin: 0,
-    background: "linear-gradient(135deg, #F59E0B, #FBBF24)",
-    WebkitBackgroundClip: "text",
-    WebkitTextFillColor: "transparent",
-  },
-  clearBtn: {
-    background: "#1E293B",
-    color: "#EF4444",
-    border: "1px solid #EF4444",
-    padding: "8px 16px",
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontSize: "14px",
-  },
-  confirmBox: {
-    background: "#1E293B",
-    border: "1px solid #EF4444",
-    borderRadius: "12px",
-    padding: "16px",
-    marginBottom: "20px",
-    textAlign: "center",
-  },
-  confirmText: {
-    color: "#FCA5A5",
-    marginBottom: "12px",
-    fontSize: "14px",
-  },
-  confirmBtns: {
-    display: "flex",
-    gap: "12px",
-    justifyContent: "center",
-  },
-  confirmYes: {
-    background: "#EF4444",
-    color: "white",
-    border: "none",
-    padding: "8px 20px",
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontWeight: "600",
-  },
-  confirmNo: {
-    background: "#334155",
-    color: "#F1F5F9",
-    border: "none",
-    padding: "8px 20px",
-    borderRadius: "8px",
-    cursor: "pointer",
-  },
-  emptyState: {
-    textAlign: "center",
-    padding: "80px 20px",
-  },
-  emptyEmoji: {
-    fontSize: "64px",
-    margin: "0 0 16px 0",
-  },
-  emptyTitle: {
-    fontSize: "24px",
-    fontWeight: "bold",
-    color: "#F1F5F9",
-    margin: "0 0 8px 0",
-  },
-  emptyDesc: {
-    fontSize: "14px",
-    color: "#64748B",
-    margin: "0 0 24px 0",
-  },
-  playBtn: {
-    background: "linear-gradient(135deg, #6366F1, #8B5CF6)",
-    color: "white",
-    border: "none",
-    padding: "14px 32px",
-    borderRadius: "12px",
-    fontSize: "16px",
-    fontWeight: "bold",
-    cursor: "pointer",
-  },
-  tableContainer: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "8px",
-  },
-  tableHeader: {
-    display: "flex",
-    alignItems: "center",
-    padding: "12px 16px",
-    background: "#1E293B",
-    borderRadius: "10px",
-    gap: "8px",
-  },
-  headerCell: {
-    fontSize: "12px",
-    fontWeight: "700",
-    color: "#64748B",
-    textTransform: "uppercase",
-    letterSpacing: "0.5px",
-  },
-  tableRow: {
-    display: "flex",
-    alignItems: "center",
-    padding: "14px 16px",
-    borderRadius: "10px",
-    gap: "8px",
-    transition: "all 0.2s",
-  },
-  cell: {
-    fontSize: "14px",
-    color: "#F1F5F9",
-  },
-  playAgainBtn: {
-    width: "100%",
-    padding: "16px",
-    background: "linear-gradient(135deg, #6366F1, #8B5CF6)",
-    color: "white",
-    border: "none",
-    borderRadius: "12px",
-    fontSize: "16px",
-    fontWeight: "bold",
-    cursor: "pointer",
-    marginTop: "24px",
-  },
-};
-
-export default Leaderboard;
