@@ -6,6 +6,7 @@ type JUDGEMENT = {
     winner: "solution_1" | "solution_2";
     solution_1_score: number;
     solution_2_score: number;
+    
 }
 
 type AIBATTLESTATE = {
