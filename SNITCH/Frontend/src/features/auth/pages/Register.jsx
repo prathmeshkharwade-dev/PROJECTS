@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from "../hook/useAuth"
 import { Link, useNavigate } from 'react-router';
+import ContinueWithGoogle from '../components/ContinueWithGoogle';
 
 const Register = () => {
 
@@ -51,7 +52,7 @@ const Register = () => {
                 <div className="absolute inset-0 bg-gradient-to-r from-[#0e0e0e]/50 via-transparent to-[#0e0e0e] opacity-90"></div>
 
                 <div className="relative z-10 p-16 flex flex-col h-full justify-between w-full max-w-2xl">
-                    <h2 className="text-[#FFD700] text-xl font-bold tracking-widest uppercase">Snitch.</h2>
+                    <h2 className="text-[#FFD700] text-3xl font-bold tracking-widest uppercase">Snitch.</h2>
 
                     <div className="mt-auto">
                         <p className="text-5xl lg:text-6xl font-bold tracking-tighter leading-[1.1] text-white mb-6">
@@ -151,9 +152,7 @@ const Register = () => {
 
                         </div>
 
-                        <a href="/api/auth/google"
-                            className="text-sm underline text-[#e5e2e1] group-hover:text-[#FFD700] cursor-pointer select-none transition-colors duration-300"
-                        >Continue with Google</a>
+                       
 
                         {/* Submit Button */}
                         <button
@@ -162,6 +161,8 @@ const Register = () => {
                         >
                             Sign Up
                         </button>
+
+                        <ContinueWithGoogle />
 
                         <div className="text-center mt-6">
                             <a href="/login" className="text-sm text-[#999077] hover:text-[#FFD700] transition-colors border-b border-transparent hover:border-[#FFD700] py-0.5">
