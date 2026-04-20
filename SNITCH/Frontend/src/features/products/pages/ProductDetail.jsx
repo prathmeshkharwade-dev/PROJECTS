@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router';
 import { useProduct } from '../hooks/useProduct';
+import { useCart } from '../../cart/hook/useCart';
 
 const ProductDetail = () => {
     const { productId } = useParams();
@@ -9,6 +10,7 @@ const ProductDetail = () => {
     const [ selectedAttributes, setSelectedAttributes ] = useState({});
     const navigate = useNavigate();
     const { handleGetProductById } = useProduct();
+    const { handleAddItem } = useCart();
 
     async function fetchProductDetails() {
         try {
@@ -42,6 +44,8 @@ const ProductDetail = () => {
             return vKeys.length === sKeys.length && isMatch;
         });
     }, [product, selectedAttributes]);
+
+    console.log({ product, activeVariant })
 
     const availableAttributes = useMemo(() => {
         if (!product?.variants) return {};
@@ -275,6 +279,12 @@ const ProductDetail = () => {
                                     onMouseLeave={e => {
                                         e.currentTarget.style.backgroundColor = '#1b1c1a';
                                         e.currentTarget.style.color = '#fbf9f6';
+                                    }}
+                                    onClick = { () => {
+                                        handleAddItem({
+                                             productId: product._id,
+                                             variantId: activeVariant._id 
+                                             })
                                     }}
                                 >
                                     Add to Cart
