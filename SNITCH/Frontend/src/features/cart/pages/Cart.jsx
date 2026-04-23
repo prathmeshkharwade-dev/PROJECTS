@@ -197,6 +197,7 @@ const Cart = () => {
                                     const qty = quantities[_id] ?? item.quantity ?? 1
                                     const attributes = variantDetail?.attributes ?? {}
                                     const stock = variantDetail?.stock
+                                    const variantPrice = variantDetail?.price
 
                                     return (
                                         <div
@@ -279,6 +280,24 @@ const Cart = () => {
                                                             {stock > 0 ? `${stock} in stock` : 'Out of stock'}
                                                         </p>
                                                     )}
+                                                   {/* ✅ Guard variantPrice before touching .amount, fix == → !== */}
+                                                        {displayPrice && variantPrice && displayPrice.amount !== variantPrice.amount && (
+                                                            <>
+                                                                {displayPrice.amount > variantPrice.amount
+                                                                    ? (
+                                                                        <p className="text-[11px] uppercase tracking-[0.15em] mb-4 text-green-500">
+                                                                            You save {formatCurrency(displayPrice.amount - variantPrice.amount, variantPrice.currency)}.
+                                                                            Get it at {formatCurrency(variantPrice.amount, variantPrice.currency)}
+                                                                        </p>
+                                                                    )
+                                                                    : (
+                                                                        <p className="text-[11px] uppercase tracking-[0.15em] mb-4 text-red-500">
+                                                                            Price increased by {formatCurrency(variantPrice.amount - displayPrice.amount, variantPrice.currency)}
+                                                                        </p>
+                                                                    )
+                                                                }
+                                                            </>
+                                                        )}
                                                 </div>
 
                                                 {/* Bottom Row: Quantity + Remove */}
