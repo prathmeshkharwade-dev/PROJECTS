@@ -13,7 +13,6 @@ const upload = multer({
 })
 
 
-
 const router = express.Router();
 
 
@@ -40,6 +39,7 @@ router.get("/seller", authenticateSeller, getSellerProducts)
  */
 router.get("/", getAllProducts)
 
+
 /**
  * @route GET /api/products/detail/:id
  * @description Get product details by ID
@@ -49,11 +49,10 @@ router.get("/detail/:id", getProductDetails)
 
 
 /**
- * @route POST /api/products/:productId/variants
+ * @route post /api/products/:productId/variants
  * @description Add a new variant to a product
  * @access Private (Seller only)
  */
-router.post("/:productId/variants", authenticateSeller, upload.array('images', 7), addProductVariant,)
-
+router.post("/:productId/variants", authenticateSeller, upload.array('images', 7), addProductVariant)
 
 export default router;
