@@ -24,7 +24,7 @@ const Register = () => {
         e.preventDefault();
         await handleRegister({
             email: formData.email,
-            contact: formData.contactNumber,
+            contact: formData.contactNumber.replace(/\D/g, '').slice(-10),
             password: formData.password,
             isSeller: formData.isSeller,
             fullname: formData.fullName
@@ -163,7 +163,7 @@ const Register = () => {
                                     value={formData.contactNumber}
                                     onChange={handleChange}
                                     required
-                                    placeholder="+91 98765 43210"
+                                    placeholder="9876543210"
                                     className="w-full bg-transparent outline-none py-3 text-sm transition-colors duration-300"
                                     style={inputStyle}
                                     onFocus={handleFocus}
