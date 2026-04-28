@@ -19,6 +19,22 @@
 
 Second Brain helps users store useful content, organize it into collections, and revisit it through an interactive graph interface. It combines AI-generated summaries with semantic search to make saved knowledge easier to explore.
 
+## Screenshots
+
+<p align="center">
+  <img src="./assets/screenshots/graph-overview.png" alt="Knowledge graph overview" width="800" />
+</p>
+
+<p align="center">
+  <img src="./assets/screenshots/save-item-modal.png" alt="Save item modal" width="390" />
+  <img src="./assets/screenshots/upload-modal.png" alt="Upload modal" width="390" />
+</p>
+
+<p align="center">
+  <img src="./assets/screenshots/profile-screen.png" alt="Profile screen" width="390" />
+  <img src="./assets/screenshots/auth-screen.png" alt="Authentication screen" width="390" />
+</p>
+
 ## Features
 
 - Interactive knowledge graph with `D3.js`
