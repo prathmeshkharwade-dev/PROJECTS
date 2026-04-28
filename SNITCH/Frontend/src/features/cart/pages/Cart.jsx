@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { useCart } from '../hook/useCart'
 import { Link, useNavigate } from 'react-router'
@@ -23,25 +23,14 @@ const tokens = {
 
 const Cart = () => {
     const cart = useSelector(state => state.cart)
-    const { handleGetCart, handleIncrementCartItem, handleCreateCartOrder, handleVerifyCartOrder } = useCart()
+    const { handleGetCart, handleIncrementCartItem, handleDecrementCartItem, handleCreateCartOrder, handleVerifyCartOrder } = useCart()
     const navigate = useNavigate()
     const { error, isLoading, Razorpay } = useRazorpay();
     const user = useSelector(state => state.user)
 
-    /* Local quantity state — key: cartItem._id, value: number */
-    const [ quantities, setQuantities ] = useState({})
-
     useEffect(() => {
         handleGetCart()
     }, [])
-
-
-    const changeQty = (id, delta) => {
-        setQuantities(prev => ({
-            ...prev,
-            [ id ]: Math.max(1, (prev[ id ] ?? 1) + delta),
-        }))
-    }
     /* ─── Helpers ─── */
     const getVariantDetails = (product, variantId) => {
         if (!product?.variants || !variantId) return null
@@ -211,7 +200,7 @@ const Cart = () => {
                                     const variantDetail = getVariantDetails(product, variantId)
                                     const imageUrl = getDisplayImage(product, variantDetail)
                                     const displayPrice = price ?? variantDetail?.price ?? product?.price
-                                    const qty = quantities[ _id ] ?? item.quantity ?? 1
+                                    const qty = item.quantity ?? 1
                                     const attributes = variantDetail?.attributes ?? {}
                                     const stock = variantDetail?.stock
                                     const variantPrice = variantDetail?.price
@@ -319,7 +308,7 @@ const Cart = () => {
                                                     >
                                                         <button
                                                             id={`qty-dec-${_id}`}
-                                                            onClick={() => changeQty(_id, -1)}
+                                                            onClick={() => handleDecrementCartItem({ productId: _id, variantId })}
                                                             className="w-9 h-9 flex items-center justify-center text-sm font-light transition-colors hover:opacity-60"
                                                             style={{ color: tokens.onSurface, borderRight: `1px solid ${tokens.outlineVariant}` }}
                                                             aria-label="Decrease quantity"
