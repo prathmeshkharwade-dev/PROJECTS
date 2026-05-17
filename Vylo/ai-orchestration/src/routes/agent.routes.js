@@ -7,11 +7,16 @@ agentRouter.post("/invoke", async (req, res) => {
     try {
         const { message, projectId } = req.body;
 
+
+
         res.writeHead(200, {
             'Content-Type': 'text/event-stream',
             'Cache-Control': 'no-cache',
             'Connection': 'keep-alive'
         });
+
+
+
 
         const response = await agent.stream(
             {
@@ -38,5 +43,8 @@ agentRouter.post("/invoke", async (req, res) => {
         res.status(500).json({ error: "Failed to invoke agent" });
     }
 });
+
+
+
 
 export default agentRouter;
