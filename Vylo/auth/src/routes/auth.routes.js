@@ -1,3 +1,4 @@
+import jwt from 'jsonwebtoken';
 import { Router } from "express";
 import User from "../models/user.model.js";
 import passport from "passport";
