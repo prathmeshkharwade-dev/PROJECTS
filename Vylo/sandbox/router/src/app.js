@@ -3,15 +3,10 @@ import morgan from 'morgan';
 import { createProxyMiddleware } from "http-proxy-middleware";
 import http from 'http';
 import { createProxyServer } from 'httpxy';
-import cors from 'cors';
+import { refreshTTL } from './config/redis.js';
 
 const app = express();
 app.use(morgan('combined'));
-app.use(cors({
-    origin: "*",
-    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-}));
 
 app.get('/api/status/healthz', (req, res) => {
     res.status(200).json({ status: 'ok' });
@@ -53,9 +48,11 @@ wsProxy.on('error', (err, req, socket) => {
     socket?.destroy();
 });
 
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
     const host = req.headers.host;
     const sandboxId = host.split('.')[ 0 ];
+
+    await refreshTTL(sandboxId);
 
     if (host.split('.')[ 1 ] === 'agent') {
         return getAgentProxy(sandboxId)(req, res, next);
@@ -71,6 +68,8 @@ server.on('upgrade', (req, socket, head) => {
     const host = req.headers.host;
     if (!host) { socket.destroy(); return; }
 
+    // Prevent EPIPE and connection-reset errors from crashing the process
+    // during the active piped session (after ws() Promise has resolved)
     socket.on('error', () => socket.destroy());
 
     const sandboxId = host.split('.')[ 0 ];

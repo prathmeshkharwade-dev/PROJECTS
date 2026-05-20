@@ -100,14 +100,46 @@ export default function FileExplorer({ agentBase, activeFile, onFileSelect, refr
       const data = await res.json()
       setFiles(data.files || [])
       setTree(buildTree(data.files || []))
-    } catch (err) {
+    } catch {
       setError('Failed to load files')
     } finally {
       setLoading(false)
     }
   }, [agentBase])
 
-  useEffect(() => { fetchFiles() }, [fetchFiles, refreshKey])
+  console.log(agentBase)
+
+  useEffect(() => {
+    if (!agentBase) return
+    
+    let isMounted = true
+    const load = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const res = await fetch(`${agentBase}/list-files`)
+        const data = await res.json()
+        if (isMounted) {
+          setFiles(data.files || [])
+          setTree(buildTree(data.files || []))
+        }
+      } catch {
+        if (isMounted) {
+          setError('Failed to load files')
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false)
+        }
+      }
+    }
+    
+    load()
+    
+    return () => {
+      isMounted = false
+    }
+  }, [agentBase, refreshKey])
 
   return (
     <aside className="flex flex-col h-full"
