@@ -10,9 +10,9 @@ export async function POST(req: NextRequest) {
 
         await connectDB()
 
-        let body: LoginBody = await req.json()
+        const body: LoginBody = await req.json()
 
-        let { email, password } = body;
+        const { email, password } = body;
 
         if (!email || !password) {
             return NextResponse.json<ApiResponse>({
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
             })
         };
 
-        let isExisted = await UserModel.findOne({ email })
+        const isExisted = await UserModel.findOne({ email })
 
         if (!isExisted) return NextResponse.json<ApiResponse>({
             success: false, message: "User not found",
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
             status: 404
         })
 
-        let matchPass = isExisted.comparePass(password)
+        const matchPass = isExisted.comparePass(password)
 
         if (!matchPass) return NextResponse.json<ApiResponse>({
             success: false, message: "Invalid credentials",
@@ -39,9 +39,9 @@ export async function POST(req: NextRequest) {
         })
 
 
-        let token = generateToken({ userId: isExisted._id.toString() })
+        const token = generateToken({ userId: isExisted._id.toString() })
 
-        let response = NextResponse.json<ApiResponse>({
+        const response = NextResponse.json<ApiResponse>({
             success: true, message: "User registered successfully", data: {
                 user: {
                     _id: isExisted._id,
