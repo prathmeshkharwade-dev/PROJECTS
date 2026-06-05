@@ -1,101 +1,115 @@
 import { getCurrentUser } from "@/lib/getCurrentUser";
 import { connectDB } from "@/lib/mongodb";
-import ResumeModel from "@/models/resume.model";
+import ResumeModel from "@/models/Resume.model";
 import { ApiResponse } from "@/types/api.types";
-import { patchFetch } from "next/dist/server/app-render/entry-base";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
-    req: NextRequest,
-     { params }: { params: Promise<{ resumeId: string }>) {
-    try {
-        await connectDB();
+  req: NextRequest,
+  { params }: { params: Promise<{ resumeId: string }> }
+) {
+  try {
+    await connectDB();
 
-        const user = await getCurrentUser();
+    const user = await getCurrentUser();
+    console.log("userr in get resume", user);
 
-        const { resumeId } = await params;
+    const { resumeId } = await params;
+    console.log("in get resume ", resumeId);
 
-        const resume = await ResumeModel.findOne({
-            _id: resumeId,
-            userId: user._id,
-         });
+    const resume = await ResumeModel.findOne({
+      _id: resumeId,
+    //   user_id: user.userId,
+    });
 
-        if (!resume)
-            return NextResponse.json<ApiResponse>({
-                success: false, message: "Resume not found"
-            }, { status: 404 });
+    console.log("resume milaaa", resume);
 
+    if (!resume)
+      return NextResponse.json<ApiResponse>(
+        {
+          success: false,
+          message: "Resume not found",
+        },
+        { status: 404 }
+      );
 
-        return NextResponse.json<ApiResponse>({
-            success: true,
-             message: "Resume fetched successfully",
-              data: resume,
-        }, { status: 200 });
-
-    } catch (error) {
-        console.log("error in resume api", error);
-        return NextResponse.json<ApiResponse>(
-            {
-                success: false,
-                message: "Something went wrong",
-            },
-            { status: 500 }
-        );
-    
-    }
-
+    return NextResponse.json<ApiResponse>(
+      {
+        success: true,
+        message: "Resume fetched successfully",
+        data: resume,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.log("error in get resume api", error);
+    return NextResponse.json<ApiResponse>(
+      {
+        success: false,
+        message: "Something went wrong",
+      },
+      { status: 500 }
+    );
+  }
 }
 
-
 export async function PATCH(
-    req: NextRequest,
-     { params }: { params: Promise<{ resumeId: string }>) {
-    try {
-        await connectDB();
+  req: NextRequest,
+  { params }: { params: Promise<{ resumeId: string }> }
+) {
+  try {
+    await connectDB();
 
-        const user = await getCurrentUser();
+    const user = await getCurrentUser();
 
-        const body = await req.json();
+    console.log("loggedin user", user);
 
-        const { resumeId } = await params;
+    const body = await req.json();
+    console.log("body-->", body);
 
-        const updatedResume = await ResumeModel.findOneAndUpdate(
-            {
-                _id: resumeId,
-                userId: user._id,
-            },{
-                $set: body,
-            },
-            { 
-                new: true,
-                runValidators: true,  
-            }
-            );
+    const { resumeId } = await params;
 
-        if (!updatedResume)
-            return NextResponse.json<ApiResponse>({
-                success: false,
-                 message: "UdatedResume Falied to update",
-            }, { status: 400 });
+    console.log("resume id", resumeId);
 
+    const updatedResume = await ResumeModel.findByIdAndUpdate(
+      {
+        _id: resumeId,
+        user_id: user.userId,
+      },
+      {
+        $set: body,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
-        return NextResponse.json<ApiResponse>({
-            success: true,
-            message: "Resume updated successfully",
-            data: updatedResume,
-        }, 
-        { status: 200 });
+    if (!updatedResume)
+      return NextResponse.json<ApiResponse>(
+        {
+          success: false,
+          message: "resume failed to update",
+        },
+        { status: 400 }
+      );
 
-    } catch (error) {
-        console.log("error in UpdatedResume api", error);
-        return NextResponse.json<ApiResponse>(
-            {
-                success: false,
-                message: "Something went wrong",
-            },
-            { status: 500 }
-        );
-    
-    }
-
+    return NextResponse.json<ApiResponse>(
+      {
+        success: true,
+        message: "Resume updated successfully",
+        data: updatedResume,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.log("error in updatedResume api", error);
+    return NextResponse.json<ApiResponse>(
+      {
+        success: false,
+        message: "Something went wrong",
+      },
+      { status: 500 }
+    );
+  }
 }

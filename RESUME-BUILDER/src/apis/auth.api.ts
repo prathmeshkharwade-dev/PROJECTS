@@ -11,8 +11,9 @@ export interface LoginPayload {
   password: string;
 }
 
-export const registerApi = async (payload:
-  RegisterPayload) => {
+export const registerApi = async (
+  payload: RegisterPayload
+) => {
   const response = await axios.post(
     "/api/auth/register",
     payload
@@ -21,7 +22,9 @@ export const registerApi = async (payload:
   return response.data;
 };
 
-export const loginApi = async (payload : LoginPayload) => {
+export const loginApi = async (
+  payload: LoginPayload
+) => {
   const response = await axios.post(
     "/api/auth/login",
     payload
@@ -29,11 +32,3 @@ export const loginApi = async (payload : LoginPayload) => {
 
   return response.data;
 };
-
-
-
-// export const getCurrentUserApi = async () => {
-//   const response = await axios.get("/api/auth/me");
-
-//     return response.data;
-// };

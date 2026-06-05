@@ -1,5 +1,5 @@
 import { generateAiContent } from "@/lib/gemini";
-import { GenerateSkillsBody } from "@/types/ai.types";
+import { GenerateSkillsBody, GenerateSummaryBody } from "@/types/ai.types";
 import { ApiResponse } from "@/types/api.types";
 import { NextRequest, NextResponse } from "next/server";
 

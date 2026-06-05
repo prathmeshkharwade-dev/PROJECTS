@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-
+import { ArrowRight, Lock, Mail } from "lucide-react";
 import { loginApi } from "@/apis/auth.api";
 
-interface LoginFormData {
+type LoginFormData = {
   email: string;
   password: string;
-}
+};
 
 export default function LoginPage() {
   const router = useRouter();
@@ -17,7 +17,10 @@ export default function LoginPage() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: {
+      errors,
+      isSubmitting,
+    },
   } = useForm<LoginFormData>();
 
   const onSubmit = async (
@@ -26,123 +29,133 @@ export default function LoginPage() {
     try {
       await loginApi(data);
 
-      router.push("/dashboard");
-    } catch (error) {
-      console.error(error);
+      router.push("/resume");
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      alert(
+        err?.response?.data?.message ||
+          "Login failed"
+      );
     }
   };
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-2">
+    <div className="min-h-screen bg-slate-50 flex">
+      {/* Left */}
+      <div className="hidden lg:flex flex-1 bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-600 p-12 text-white flex-col justify-between">
+        <div>
+          <h1 className="text-4xl font-bold">
+            AI Resume Builder
+          </h1>
 
-      {/* Left Side */}
+          <p className="mt-4 text-violet-100">
+            Build professional resumes powered by AI.
+          </p>
+        </div>
 
-      <div className="hidden lg:flex flex-col justify-center bg-linear-to-br from-slate-900 via-indigo-950 to-slate-950 text-white px-16">
+        <div>
+          <h2 className="text-3xl font-bold">
+            Welcome Back
+          </h2>
 
-        <h1 className="text-6xl font-black leading-tight">
-          Welcome
-          <br />
-          Back
-        </h1>
-
-        <p className="mt-6 text-lg text-slate-300 max-w-md">
-          Continue building and managing
-          professional AI-powered resumes.
-        </p>
-
-        <div className="mt-12 flex gap-4">
-          <div className="bg-white/10 backdrop-blur-md rounded-xl p-4">
-            AI Resume
-          </div>
-
-          <div className="bg-white/10 backdrop-blur-md rounded-xl p-4">
-            ATS Score
-          </div>
-
-          <div className="bg-white/10 backdrop-blur-md rounded-xl p-4">
-            PDF Export
-          </div>
+          <p className="mt-4 text-violet-100">
+            Continue building your ATS-friendly
+            resume.
+          </p>
         </div>
       </div>
 
-      {/* Right Side */}
+      {/* Form */}
+      <div className="flex-1 flex items-center justify-center p-6">
+        <div className="w-full max-w-md bg-white rounded-3xl border border-slate-200 shadow-xl p-8">
+          <h2 className="text-3xl font-bold text-slate-800">
+            Login 👋
+          </h2>
 
-      <div className="flex items-center justify-center bg-slate-50 p-6">
+          <p className="text-slate-500 mt-2">
+            Access your resume dashboard.
+          </p>
 
-        <div className="w-full max-w-md">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="mt-8 space-y-5"
+          >
+            <div>
+              <label className="block mb-2 text-sm font-medium">
+                Email
+              </label>
 
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-xl p-8">
+              <div className="relative">
+                <Mail
+                  size={18}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                />
 
-            <div className="mb-8 text-blue-700" >
-              <h2 className="text-3xl font-bold">
-                Login
-              </h2>
-
-              <p className="text-slate-500 mt-2">
-                Access your account.
-              </p>
-            </div>
-
-            <form
-              onSubmit={handleSubmit(onSubmit)}
-              className="space-y-5"
-            >
-              <div>
                 <input
-                  type="email"
-                  placeholder="Email Address"
-                  className="w-full rounded-xl border border-slate-300 p-4 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   {...register("email", {
                     required: "Email is required",
                   })}
+                  placeholder="john@example.com"
+                  className="w-full pl-11 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-violet-500 outline-none"
                 />
-
-                {errors.email && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.email.message}
-                  </p>
-                )}
               </div>
 
-              <div>
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.email.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block mb-2 text-sm font-medium">
+                Password
+              </label>
+
+              <div className="relative">
+                <Lock
+                  size={18}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                />
+
                 <input
                   type="password"
-                  placeholder="Password"
-                  className="w-full rounded-xl border border-slate-300 p-4 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   {...register("password", {
                     required: "Password is required",
                   })}
+                  placeholder="********"
+                  className="w-full pl-11 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-violet-500 outline-none"
                 />
-
-                {errors.password && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.password.message}
-                  </p>
-                )}
               </div>
 
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full rounded-xl bg-indigo-600 text-white py-4 font-semibold hover:bg-indigo-700 transition"
-              >
-                {isSubmitting
-                  ? "Signing In..."
-                  : "Login"}
-              </button>
-            </form>
+              {errors.password && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
 
-            <p className="text-center mt-6 text-slate-600">
-              Don&apos;t have an account?{" "}
-              <Link
-                href="/auth/register"
-                className="font-semibold text-indigo-600"
-              >
-                Register
-              </Link>
-            </p>
+            <button
+              disabled={isSubmitting}
+              className="w-full bg-violet-600 hover:bg-violet-700 text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2"
+            >
+              {isSubmitting
+                ? "Logging In..."
+                : "Login"}
 
-          </div>
+              <ArrowRight size={18} />
+            </button>
+          </form>
+
+          <p className="mt-6 text-center text-slate-500">
+            Don&apos;t have an account?
+            <Link
+              href="/auth/register"
+              className="ml-2 text-violet-600 font-semibold"
+            >
+              Register
+            </Link>
+          </p>
         </div>
       </div>
     </div>

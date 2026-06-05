@@ -1,6 +1,6 @@
 import { getCurrentUser } from "@/lib/getCurrentUser";
 import { connectDB } from "@/lib/mongodb";
-import ResumeModel from "@/models/resume.model";
+import ResumeModel from "@/models/Resume.model";
 import { ApiResponse } from "@/types/api.types";
 import { NextRequest, NextResponse } from "next/server";
 
