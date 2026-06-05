@@ -34,7 +34,7 @@ export const generateExperienceApi = async (payload: {
   techStack?: string[];
   yearsOfExperience?: number;
 }) => {
-  const response = await axios.post("/api/ai/generate-experience", payload);
+  const response = await axios.post("/api/ai/generate-experience-description", payload);
 
   return response.data;
 };

@@ -67,9 +67,9 @@ export default function ExperienceStep({ resumeId, onNext, onBack }: Props) {
     try {
       const { data } = await axios.get(`/api/resume/${resumeId}`);
 
-      if (data.resume.experience?.length) {
+      if (data.data.workExperience?.length) {
         reset({
-          experience: data.resume.experience,
+          experience: data.data.workExperience,
         });
       }
     } catch (error) {
@@ -83,7 +83,7 @@ export default function ExperienceStep({ resumeId, onNext, onBack }: Props) {
 
       const { data: resumeData } = await axios.get(`/api/resume/${resumeId}`);
 
-      const resume = resumeData.resume;
+      const resume = resumeData.data;
 
       const { data } = await axios.post("/api/ai/generate-experience", {
         jobRole: exp.role,
@@ -99,7 +99,7 @@ export default function ExperienceStep({ resumeId, onNext, onBack }: Props) {
   const onSubmit = async (values: FormValues) => {
     try {
       await axios.patch(`/api/resume/${resumeId}`, {
-        experience: values.experience,
+        workExperience: values.experience,
       });
 
       router.push(`/resume/${resumeId}/preview`);

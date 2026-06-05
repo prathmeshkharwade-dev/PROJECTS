@@ -1,5 +1,5 @@
 import { generateAiContent } from "@/lib/gemini";
-import { GenerateSkillsBody, GenerateSummaryBody } from "@/types/ai.types";
+import { GenerateSkillsBody } from "@/types/ai.types";
 import { ApiResponse } from "@/types/api.types";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -76,7 +76,9 @@ export async function POST(req: NextRequest) {
 
         if (typeof skills === "string") {
             try {
-                skills = JSON.parse(skills);
+                // Strip markdown formatting if Gemini includes it
+                const cleaned = skills.replace(/```json\n?|\n?```/g, '').trim();
+                skills = JSON.parse(cleaned);
             } catch (err) {
                 console.error("Failed to parse skills:", err);
             }

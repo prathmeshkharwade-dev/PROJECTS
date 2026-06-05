@@ -42,19 +42,19 @@ export async function POST(req: NextRequest) {
         const token = generateToken({ userId: isExisted._id.toString() })
 
         const response = NextResponse.json<ApiResponse>({
-            success: true, message: "User registered successfully", data: {
+            success: true, message: "Login successful", data: {
                 user: {
                     _id: isExisted._id,
                     name: isExisted.name,
                     email: isExisted.email
                 }
             }
-        }, { status: 201 })
+        }, { status: 200 })
 
         response.cookies.set('token', token, {
             httpOnly: true,
             sameSite: 'lax',
-            maxAge: 60 * 60 * 1000
+            maxAge: 60 * 60
         })
 
         return response

@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema<UserDocument>(
     },
     password: {
       type: String,
-      required: [true, "Name is required"],
+      required: [true, "Password is required"],
       minlength: [6, "Min 6 characters required"],
     },
     mobile: {

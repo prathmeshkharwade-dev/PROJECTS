@@ -23,6 +23,7 @@ const resumeSchema = new mongoose.Schema<IResume>(
         mobile: String,
         location: String,
         github: String,
+        linkedIn: String,
         portfolio: String,
       },
       default: {},

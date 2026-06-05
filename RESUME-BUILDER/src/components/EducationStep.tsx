@@ -74,12 +74,12 @@ export default function EducationStep({
       );
 
       if (
-        data.resume?.education &&
-        data.resume.education.length > 0
+        data.data?.education &&
+        data.data.education.length > 0
       ) {
         reset({
           education:
-            data.resume.education,
+            data.data.education,
         });
       }
     } catch (error) {

@@ -60,9 +60,9 @@ export default function ProjectsStep({ resumeId, onNext, onBack }: Props) {
     try {
       const { data } = await axios.get(`/api/resume/${resumeId}`);
 
-      if (data.resume.projects?.length) {
+      if (data.data.projects?.length) {
         reset({
-          projects: data.resume.projects.map((project: any) => ({
+          projects: data.data.projects.map((project: any) => ({
             ...project,
             techStack: Array.isArray(project.techStack)
               ? project.techStack.join(", ")
@@ -81,7 +81,7 @@ export default function ProjectsStep({ resumeId, onNext, onBack }: Props) {
 
       const { data: resumeData } = await axios.get(`/api/resume/${resumeId}`);
 
-      const resume = resumeData.resume;
+      const resume = resumeData.data;
 
       const { data } = await axios.post(
         "/api/ai/generate-project-description",

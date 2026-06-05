@@ -36,7 +36,7 @@ export default function PersonalInfoStep({ resumeId, onNext }: Props) {
     try {
       const { data } = await axios.get(`/api/resume/${resumeId}`);
 
-      reset(data.resume.personalInfo || {});
+      reset(data.data.personalInfo || {});
     } catch (error) {
       console.log(error);
     }

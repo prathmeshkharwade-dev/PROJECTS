@@ -1,5 +1,4 @@
 import { generateAiContent } from "@/lib/gemini";
-import { GenerateSummaryBody, ImproveContentBody } from "@/types/ai.types";
 import { ApiResponse } from "@/types/api.types";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -81,7 +80,17 @@ export async function POST(req: NextRequest) {
 
     const result = await generateAiContent(prompt);
 
-    const AtsScore = result;
+    let AtsScore = result;
+    
+    if (typeof AtsScore === "string") {
+        try {
+            // Strip markdown formatting if Gemini includes it
+            const cleaned = AtsScore.replace(/```json\n?|\n?```/g, '').trim();
+            AtsScore = JSON.parse(cleaned);
+        } catch (err) {
+            console.error("Failed to parse AtsScore:", err);
+        }
+    }
 
     return NextResponse.json<ApiResponse>(
       {

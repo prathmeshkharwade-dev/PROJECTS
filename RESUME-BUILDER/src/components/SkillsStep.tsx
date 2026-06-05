@@ -28,7 +28,7 @@ export default function SkillsStep({ resumeId, onNext, onBack }: Props) {
     try {
       const { data } = await axios.get(`/api/resume/${resumeId}/`);
 
-      setSkills(data.resume.skills || []);
+      setSkills(data.data.skills || []);
     } catch (error) {
       console.log(error);
     }
@@ -55,7 +55,7 @@ export default function SkillsStep({ resumeId, onNext, onBack }: Props) {
 
       console.log("data in resume find", resumeData);
 
-      const resume = resumeData.resume;
+      const resume = resumeData.data;
 
       const { data } = await axios.post("/api/ai/generate-skills", {
         jobTitle: "web developer",

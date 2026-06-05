@@ -19,7 +19,7 @@ export async function GET(
 
     const resume = await ResumeModel.findOne({
       _id: resumeId,
-    //   user_id: user.userId,
+      user_id: user,
     });
 
     console.log("resume milaaa", resume);
@@ -71,10 +71,10 @@ export async function PATCH(
 
     console.log("resume id", resumeId);
 
-    const updatedResume = await ResumeModel.findByIdAndUpdate(
+    const updatedResume = await ResumeModel.findOneAndUpdate(
       {
         _id: resumeId,
-        user_id: user.userId,
+        user_id: user,
       },
       {
         $set: body,
@@ -104,6 +104,50 @@ export async function PATCH(
     );
   } catch (error) {
     console.log("error in updatedResume api", error);
+    return NextResponse.json<ApiResponse>(
+      {
+        success: false,
+        message: "Something went wrong",
+      },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ resumeId: string }> }
+) {
+  try {
+    await connectDB();
+
+    const user = await getCurrentUser();
+
+    const { resumeId } = await params;
+
+    const deletedResume = await ResumeModel.findOneAndDelete({
+      _id: resumeId,
+      user_id: user,
+    });
+
+    if (!deletedResume)
+      return NextResponse.json<ApiResponse>(
+        {
+          success: false,
+          message: "Resume not found or failed to delete",
+        },
+        { status: 404 }
+      );
+
+    return NextResponse.json<ApiResponse>(
+      {
+        success: true,
+        message: "Resume deleted successfully",
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.log("error in delete resume api", error);
     return NextResponse.json<ApiResponse>(
       {
         success: false,
