@@ -93,6 +93,7 @@ export default function ExperienceStep({ resumeId, onNext, onBack }: Props) {
       setValue(`experience.${index}.description`, data.description);
     } catch (error) {
       console.log(error);
+      alert("AI is currently experiencing high demand or an error occurred. Please try again later.");
     }
   };
 
@@ -109,157 +110,160 @@ export default function ExperienceStep({ resumeId, onNext, onBack }: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4">
-      <div className="max-w-6xl mx-auto">
-        {/* Progress */}
-
-        <div className="mb-8">
-          <div className="flex justify-between">
-            <span>Step 5 of 8</span>
-
-            <span>62%</span>
-          </div>
-
-          <div className="h-2 bg-slate-200 rounded-full mt-2">
-            <div className="h-full w-[62%] bg-violet-600 rounded-full" />
-          </div>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8">
+        <div>
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Work Experience</h1>
+          <p className="text-slate-500 mt-1.5 text-lg">
+            Showcase your professional journey.
+          </p>
         </div>
 
-        <div className="bg-white p-8 rounded-3xl border shadow-sm">
-          <div className="flex justify-between items-center mb-8">
-            <div>
-              <h1 className="text-3xl font-bold">Work Experience</h1>
+        <button
+          type="button"
+          onClick={() =>
+            append({
+              company: "",
+              role: "",
+              employmentType: "",
+              startDate: "",
+              endDate: "",
+              currentlyWorking: false,
+              description: "",
+            })
+          }
+          className="inline-flex items-center gap-2 bg-violet-50 hover:bg-violet-100 text-violet-700 px-6 py-3.5 rounded-2xl font-bold transition-colors border border-violet-200"
+        >
+          <Plus size={18} />
+          Add Experience
+        </button>
+      </div>
 
-              <p className="text-slate-500 mt-2">
-                Showcase your professional experience.
-              </p>
-            </div>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        <div className="space-y-6">
+          {fields.map((field, index) => (
+            <div key={field.id} className="bg-slate-50/50 border border-slate-200 rounded-3xl p-6 md:p-8 relative group transition-all duration-300 hover:shadow-md hover:border-violet-200">
+              {fields.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => remove(index)}
+                  className="absolute top-4 right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-colors shadow-sm"
+                  title="Remove Experience"
+                >
+                  <Trash2 size={18} />
+                </button>
+              )}
 
-            <button
-              type="button"
-              onClick={() =>
-                append({
-                  company: "",
-                  role: "",
-                  employmentType: "",
-                  startDate: "",
-                  endDate: "",
-                  currentlyWorking: false,
-                  description: "",
-                })
-              }
-              className="bg-violet-600 text-white px-4 py-3 rounded-xl flex items-center gap-2"
-            >
-              <Plus size={18} />
-              Add Experience
-            </button>
-          </div>
-
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-            {fields.map((field, index) => (
-              <div key={field.id} className="border rounded-2xl p-6 relative">
-                {fields.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => remove(index)}
-                    className="absolute top-4 right-4 text-red-500"
-                  >
-                    <Trash2 />
-                  </button>
-                )}
-
-                <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold text-slate-700">Company Name</label>
                   <input
                     {...register(`experience.${index}.company`)}
-                    placeholder="Company Name"
-                    className="border rounded-xl p-3"
+                    placeholder="e.g. Google"
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-3.5 px-4 text-slate-900 placeholder:text-slate-400 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all duration-200 outline-none shadow-sm"
                   />
+                </div>
 
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold text-slate-700">Job Title</label>
                   <input
                     {...register(`experience.${index}.role`)}
-                    placeholder="Job Title"
-                    className="border rounded-xl p-3"
+                    placeholder="e.g. Frontend Engineer"
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-3.5 px-4 text-slate-900 placeholder:text-slate-400 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all duration-200 outline-none shadow-sm"
                   />
+                </div>
 
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold text-slate-700">Employment Type</label>
                   <select
                     {...register(`experience.${index}.employmentType`)}
-                    className="border rounded-xl p-3"
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-3.5 px-4 text-slate-900 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all duration-200 outline-none appearance-none shadow-sm"
                   >
-                    <option value="">Employment Type</option>
+                    <option value="">Select Type</option>
                     <option>Full Time</option>
+                    <option>Part Time</option>
                     <option>Internship</option>
                     <option>Contract</option>
                     <option>Freelance</option>
                   </select>
-
-                  <input
-                    type="date"
-                    {...register(`experience.${index}.startDate`)}
-                    className="border rounded-xl p-3"
-                  />
-
-                  <input
-                    type="date"
-                    {...register(`experience.${index}.endDate`)}
-                    disabled={watch(`experience.${index}.currentlyWorking`)}
-                    className="border rounded-xl p-3"
-                  />
                 </div>
 
-                <div className="mt-4">
-                  <label className="flex items-center gap-3">
+                <div className="flex gap-4">
+                  <div className="flex-1 space-y-1.5">
+                    <label className="block text-sm font-semibold text-slate-700">Start Date</label>
                     <input
-                      type="checkbox"
-                      {...register(`experience.${index}.currentlyWorking`)}
+                      type="date"
+                      {...register(`experience.${index}.startDate`)}
+                      className="w-full bg-white border border-slate-200 rounded-2xl py-3.5 px-4 text-slate-900 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all duration-200 outline-none shadow-sm"
                     />
-                    Currently Working Here
-                  </label>
-                </div>
-
-                <div className="mt-6">
-                  <div className="flex justify-end mb-3">
-                    <button
-                      type="button"
-                      onClick={() => generateDescription(index)}
-                      className="bg-violet-100 text-violet-700 px-4 py-2 rounded-xl flex items-center gap-2"
-                    >
-                      <Sparkles size={18} />
-                      Generate Description
-                    </button>
                   </div>
-
-                  <textarea
-                    rows={6}
-                    {...register(`experience.${index}.description`)}
-                    placeholder="Describe your responsibilities and achievements..."
-                    className="w-full border rounded-xl p-4"
-                  />
+                  
+                  <div className="flex-1 space-y-1.5">
+                    <label className="block text-sm font-semibold text-slate-700">End Date</label>
+                    <input
+                      type="date"
+                      {...register(`experience.${index}.endDate`)}
+                      disabled={watch(`experience.${index}.currentlyWorking`)}
+                      className="w-full bg-white border border-slate-200 rounded-2xl py-3.5 px-4 text-slate-900 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all duration-200 outline-none disabled:opacity-50 disabled:bg-slate-50 shadow-sm"
+                    />
+                  </div>
                 </div>
               </div>
-            ))}
 
-            <div className="flex justify-between">
-              <button
-                type="button"
-                onClick={onBack}
-                className="border px-5 py-3 rounded-xl flex items-center gap-2"
-              >
-                <ArrowLeft size={18} />
-                Back
-              </button>
+              <div className="mb-6">
+                <label className="inline-flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    {...register(`experience.${index}.currentlyWorking`)}
+                    className="w-5 h-5 rounded border-slate-300 text-violet-600 focus:ring-violet-500 transition-colors"
+                  />
+                  <span className="text-sm font-semibold text-slate-700 select-none">I currently work here</span>
+                </label>
+              </div>
 
-              <button
-                disabled={isSubmitting}
-                className="bg-violet-600 text-white px-6 py-3 rounded-xl flex items-center gap-2"
-              >
-                {isSubmitting ? "Saving..." : "Continue"}
+              <div className="space-y-3">
+                <div className="flex justify-between items-end">
+                  <label className="block text-sm font-semibold text-slate-700">Role Description</label>
+                  <button
+                    type="button"
+                    onClick={() => generateDescription(index)}
+                    className="group relative flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-xl font-medium shadow-md shadow-violet-500/20 transition-all duration-300 hover:-translate-y-0.5 text-sm"
+                  >
+                    <Sparkles size={16} className="group-hover:animate-pulse" />
+                    Generate with AI
+                  </button>
+                </div>
 
-                <ArrowRight size={18} />
-              </button>
+                <textarea
+                  rows={6}
+                  {...register(`experience.${index}.description`)}
+                  placeholder="Describe your key responsibilities, achievements, and the impact you made..."
+                  className="w-full bg-white border border-slate-200 rounded-2xl py-3.5 px-4 text-slate-900 placeholder:text-slate-400 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all duration-200 outline-none shadow-sm resize-none"
+                />
+              </div>
             </div>
-          </form>
+          ))}
         </div>
-      </div>
+
+        <div className="flex items-center justify-between pt-6 border-t border-slate-100">
+          <button
+            type="button"
+            onClick={onBack}
+            className="flex items-center gap-2 px-6 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl font-semibold transition-colors"
+          >
+            <ArrowLeft size={18} />
+            Back
+          </button>
+
+          <button
+            disabled={isSubmitting}
+            className="flex items-center gap-2 px-8 py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-semibold transition-all duration-200 active:scale-[0.98] disabled:opacity-70 shadow-lg shadow-slate-900/10"
+          >
+            {isSubmitting ? "Finishing..." : "Save & Preview"}
+            <ArrowRight size={18} />
+          </button>
+        </div>
+      </form>
     </div>
   );
 }

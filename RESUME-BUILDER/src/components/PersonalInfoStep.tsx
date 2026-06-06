@@ -55,123 +55,100 @@ export default function PersonalInfoStep({ resumeId, onNext }: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Progress */}
-        <div className="mb-8">
-          <div className="flex justify-between mb-2">
-            <span className="font-medium">Step 1 of 8</span>
-
-            <span className="text-slate-500">12%</span>
-          </div>
-
-          <div className="h-2 bg-slate-200 rounded-full">
-            <div className="h-full w-[12%] bg-violet-600 rounded-full" />
-          </div>
-        </div>
-
-        {/* Card */}
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-slate-800">
-              Personal Information
-            </h1>
-
-            <p className="text-slate-500 mt-2">
-              Tell recruiters how they can reach you.
-            </p>
-          </div>
-
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* Full Name */}
-            <InputField
-              icon={<User size={18} />}
-              placeholder="John Doe"
-              label="Full Name"
-              register={register("fullName")}
-            />
-
-            {/* Email */}
-            <InputField
-              icon={<Mail size={18} />}
-              placeholder="john@example.com"
-              label="Email"
-              register={register("email")}
-            />
-
-            {/* Phone */}
-            <InputField
-              icon={<Phone size={18} />}
-              placeholder="+91 9876543210"
-              label="Phone Number"
-              register={register("phone")}
-            />
-
-            {/* Location */}
-            <InputField
-              icon={<MapPin size={18} />}
-              placeholder="Bhopal, India"
-              label="Location"
-              register={register("location")}
-            />
-
-            {/* LinkedIn */}
-            <InputField
-              //   icon={<Linkedin size={18} />}
-              placeholder="https://linkedin.com/in/..."
-              label="LinkedIn"
-              register={register("linkedin")}
-            />
-
-            {/* Github */}
-            <InputField
-              //   icon={<Github size={18} />}
-              placeholder="https://github.com/..."
-              label="GitHub"
-              register={register("github")}
-            />
-
-            {/* Portfolio */}
-            <InputField
-              icon={<Globe size={18} />}
-              placeholder="https://portfolio.com"
-              label="Portfolio"
-              register={register("portfolio")}
-            />
-
-            <div className="flex justify-end pt-4">
-              <button
-                disabled={isSubmitting}
-                className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white px-6 py-3 rounded-xl font-semibold transition"
-              >
-                {isSubmitting ? "Saving..." : "Continue"}
-
-                <ArrowRight size={18} />
-              </button>
-            </div>
-          </form>
-        </div>
+    <div className="space-y-6">
+      <div className="mb-8">
+        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+          Personal Information
+        </h1>
+        <p className="text-slate-500 mt-2 text-lg">
+          Tell recruiters how they can reach you.
+        </p>
       </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <InputField
+            icon={<User size={18} />}
+            placeholder="John Doe"
+            label="Full Name"
+            register={register("fullName")}
+          />
+
+          <InputField
+            icon={<Mail size={18} />}
+            placeholder="john@example.com"
+            label="Email Address"
+            register={register("email")}
+          />
+
+          <InputField
+            icon={<Phone size={18} />}
+            placeholder="+1 234 567 8900"
+            label="Phone Number"
+            register={register("phone")}
+          />
+
+          <InputField
+            icon={<MapPin size={18} />}
+            placeholder="San Francisco, CA"
+            label="Location"
+            register={register("location")}
+          />
+
+          <InputField
+            icon={<Globe size={18} />}
+            placeholder="linkedin.com/in/johndoe"
+            label="LinkedIn URL"
+            register={register("linkedin")}
+          />
+
+          <InputField
+            icon={<Globe size={18} />}
+            placeholder="github.com/johndoe"
+            label="GitHub URL"
+            register={register("github")}
+          />
+        </div>
+
+        <div className="w-full">
+          <InputField
+            icon={<Globe size={18} />}
+            placeholder="https://myportfolio.com"
+            label="Portfolio Website"
+            register={register("portfolio")}
+          />
+        </div>
+
+        <div className="flex justify-end pt-6 border-t border-slate-100">
+          <button
+            disabled={isSubmitting}
+            className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-8 py-3.5 rounded-2xl font-semibold transition-all duration-200 active:scale-[0.98] shadow-lg shadow-slate-900/10 disabled:opacity-70"
+          >
+            {isSubmitting ? "Saving..." : "Save & Continue"}
+            <ArrowRight size={18} />
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
 
 function InputField({ label, placeholder, icon, register }: any) {
   return (
-    <div>
-      <label className="block text-sm font-medium text-slate-700 mb-2">
+    <div className="space-y-1.5">
+      <label className="block text-sm font-semibold text-slate-700">
         {label}
       </label>
 
-      <div className="relative">
-        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+      <div className="relative group">
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-600 transition-colors duration-200">
           {icon}
         </div>
 
         <input
           {...register}
           placeholder={placeholder}
-          className="w-full border border-slate-300 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-violet-500"
+          className="w-full bg-slate-50/50 border border-slate-200 rounded-2xl py-3.5 pl-12 pr-4 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all duration-200 outline-none shadow-sm"
         />
       </div>
     </div>

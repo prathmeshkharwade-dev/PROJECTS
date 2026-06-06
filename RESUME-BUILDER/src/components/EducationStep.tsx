@@ -106,201 +106,124 @@ export default function EducationStep({
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4">
-      <div className="max-w-5xl mx-auto">
-
-        {/* Progress */}
-
-        <div className="mb-8">
-          <div className="flex justify-between mb-2">
-            <span className="font-medium">
-              Step 2 of 8
-            </span>
-
-            <span className="text-slate-500">
-              25%
-            </span>
-          </div>
-
-          <div className="h-2 bg-slate-200 rounded-full">
-            <div className="h-full w-[25%] bg-violet-600 rounded-full" />
-          </div>
+    <div className="space-y-6">
+      <div className="flex items-center gap-4 mb-8">
+        <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-violet-100 to-indigo-50 flex items-center justify-center shadow-inner">
+          <GraduationCap className="w-7 h-7 text-violet-600" />
         </div>
-
-        {/* Card */}
-
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-8">
-
-          <div className="flex items-center gap-4 mb-8">
-            <div className="h-12 w-12 rounded-xl bg-violet-100 flex items-center justify-center">
-              <GraduationCap className="text-violet-600" />
-            </div>
-
-            <div>
-              <h1 className="text-3xl font-bold text-slate-800">
-                Education
-              </h1>
-
-              <p className="text-slate-500">
-                Add your educational background.
-              </p>
-            </div>
-          </div>
-
-          <form
-            onSubmit={handleSubmit(
-              onSubmit
-            )}
-            className="space-y-6"
-          >
-            {fields.map(
-              (field, index) => (
-                <div
-                  key={field.id}
-                  className="border border-slate-200 rounded-2xl p-6 relative"
-                >
-                  {fields.length >
-                    1 && (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        remove(
-                          index
-                        )
-                      }
-                      className="absolute top-4 right-4 text-red-500 hover:text-red-600"
-                    >
-                      <Trash2
-                        size={18}
-                      />
-                    </button>
-                  )}
-
-                  <div className="grid md:grid-cols-2 gap-5">
-
-                    {/* Institute */}
-
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">
-                        Institute
-                      </label>
-
-                      <input
-                        {...register(
-                          `education.${index}.institute`
-                        )}
-                        placeholder="Lakshmi Narain College of Technology"
-                        className="w-full border border-slate-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-violet-500"
-                      />
-                    </div>
-
-                    {/* Degree */}
-
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">
-                        Degree
-                      </label>
-
-                      <input
-                        {...register(
-                          `education.${index}.degree`
-                        )}
-                        placeholder="B.Tech Computer Science"
-                        className="w-full border border-slate-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-violet-500"
-                      />
-                    </div>
-
-                    {/* Start Date */}
-
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">
-                        Start Date
-                      </label>
-
-                      <input
-                        type="date"
-                        {...register(
-                          `education.${index}.startDate`
-                        )}
-                        className="w-full border border-slate-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-violet-500"
-                      />
-                    </div>
-
-                    {/* End Date */}
-
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">
-                        End Date
-                      </label>
-
-                      <input
-                        type="date"
-                        {...register(
-                          `education.${index}.endDate`
-                        )}
-                        className="w-full border border-slate-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-violet-500"
-                      />
-                    </div>
-
-                  </div>
-                </div>
-              )
-            )}
-
-            {/* Add Education */}
-
-            <button
-              type="button"
-              onClick={() =>
-                append({
-                  institute: "",
-                  degree: "",
-                  startDate: "",
-                  endDate: "",
-                })
-              }
-              className="flex items-center gap-2 border border-violet-300 text-violet-600 px-5 py-3 rounded-xl hover:bg-violet-50 transition"
-            >
-              <Plus size={18} />
-              Add Education
-            </button>
-
-            {/* Footer */}
-
-            <div className="flex justify-between pt-6">
-
-              <button
-                type="button"
-                onClick={onBack}
-                className="flex items-center gap-2 px-5 py-3 border border-slate-300 rounded-xl hover:bg-slate-100"
-              >
-                <ArrowLeft
-                  size={18}
-                />
-                Back
-              </button>
-
-              <button
-                type="submit"
-                disabled={
-                  isSubmitting
-                }
-                className="flex items-center gap-2 px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-xl"
-              >
-                {isSubmitting
-                  ? "Saving..."
-                  : "Continue"}
-
-                <ArrowRight
-                  size={18}
-                />
-              </button>
-
-            </div>
-          </form>
-
+        <div>
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+            Education
+          </h1>
+          <p className="text-slate-500 mt-1.5 text-lg">
+            Add your educational background.
+          </p>
         </div>
       </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        <div className="space-y-6">
+          {fields.map((field, index) => (
+            <div
+              key={field.id}
+              className="bg-slate-50/50 border border-slate-200 rounded-3xl p-6 md:p-8 relative group transition-all duration-300 hover:shadow-md hover:border-violet-200"
+            >
+              {fields.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => remove(index)}
+                  className="absolute top-4 right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-colors shadow-sm"
+                  title="Remove Education"
+                >
+                  <Trash2 size={18} />
+                </button>
+              )}
+
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold text-slate-700">
+                    Institute
+                  </label>
+                  <input
+                    {...register(`education.${index}.institute`)}
+                    placeholder="e.g. Stanford University"
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-3.5 px-4 text-slate-900 placeholder:text-slate-400 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all duration-200 outline-none shadow-sm"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold text-slate-700">
+                    Degree
+                  </label>
+                  <input
+                    {...register(`education.${index}.degree`)}
+                    placeholder="e.g. B.S. Computer Science"
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-3.5 px-4 text-slate-900 placeholder:text-slate-400 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all duration-200 outline-none shadow-sm"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold text-slate-700">
+                    Start Date
+                  </label>
+                  <input
+                    type="date"
+                    {...register(`education.${index}.startDate`)}
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-3.5 px-4 text-slate-900 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all duration-200 outline-none shadow-sm"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold text-slate-700">
+                    End Date
+                  </label>
+                  <input
+                    type="date"
+                    {...register(`education.${index}.endDate`)}
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-3.5 px-4 text-slate-900 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all duration-200 outline-none shadow-sm"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <button
+          type="button"
+          onClick={() =>
+            append({
+              institute: "",
+              degree: "",
+              startDate: "",
+              endDate: "",
+            })
+          }
+          className="inline-flex items-center gap-2 bg-violet-50 hover:bg-violet-100 text-violet-700 px-6 py-3.5 rounded-2xl font-bold transition-colors border border-violet-200"
+        >
+          <Plus size={18} />
+          Add Education
+        </button>
+
+        <div className="flex items-center justify-between pt-6 border-t border-slate-100">
+          <button
+            type="button"
+            onClick={onBack}
+            className="flex items-center gap-2 px-6 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl font-semibold transition-colors"
+          >
+            <ArrowLeft size={18} />
+            Back
+          </button>
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="flex items-center gap-2 px-8 py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-semibold transition-all duration-200 active:scale-[0.98] disabled:opacity-70 shadow-lg shadow-slate-900/10"
+          >
+            {isSubmitting ? "Saving..." : "Save & Continue"}
+            <ArrowRight size={18} />
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
