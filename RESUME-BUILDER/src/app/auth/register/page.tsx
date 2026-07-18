@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { ArrowRight, Lock, Mail, User, Sparkles } from "lucide-react";
 import { registerApi } from "@/apis/auth.api";
+import { isAxiosError } from "axios";
 
 type RegisterFormData = {
   name: string;
@@ -18,6 +19,7 @@ export default function RegisterPage() {
   const {
     register,
     handleSubmit,
+    setError,
     formState: {
       errors,
       isSubmitting,
@@ -32,10 +34,12 @@ export default function RegisterPage() {
 
       router.push("/auth/login");
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        alert(error.message);
+      if (isAxiosError(error) && error.response) {
+        setError("root", { message: error.response.data.message || "Registration failed" });
+      } else if (error instanceof Error) {
+        setError("root", { message: error.message });
       } else {
-        alert("Registration failed");
+        setError("root", { message: "Registration failed" });
       }
     }
   };
@@ -124,6 +128,12 @@ export default function RegisterPage() {
           </p>
 
           <form onSubmit={handleSubmit(onSubmit)} className="mt-10 space-y-5">
+            {errors.root && (
+              <div className="p-3 rounded-xl bg-rose-50/50 border border-rose-200 text-rose-600 text-sm font-medium flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-rose-600 shrink-0" />
+                {errors.root.message}
+              </div>
+            )}
             <div className="space-y-1.5">
               <label className="text-sm font-semibold text-slate-700 block">
                 Full Name

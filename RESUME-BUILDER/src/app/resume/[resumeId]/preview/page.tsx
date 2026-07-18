@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Eye, Download, Sparkles } from "lucide-react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { getATSScoreApi } from "@/apis/ai.api";
 
 interface Resume {
   title: string;
@@ -50,8 +51,10 @@ export default function ResumePreviewPage() {
   const [resume, setResume] = useState<Resume | null>(null);
 
   const [loading, setLoading] = useState(true);
+  const [analyzing, setAnalyzing] = useState(false);
 
   const { resumeId } = useParams();
+  const router = useRouter();
 
   useEffect(() => {
     fetchResume();
@@ -68,6 +71,32 @@ export default function ResumePreviewPage() {
       console.log(error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleATSScore = async () => {
+    try {
+      setAnalyzing(true);
+      const resumeText = JSON.stringify(resume);
+      const responseData = await getATSScoreApi({ resumeText });
+      
+      const atsData = responseData?.data?.AtsScore;
+      
+      if (!atsData) {
+        throw new Error("Invalid response format from server.");
+      }
+
+      const score = atsData.atsScore || "N/A";
+      const summary = atsData.summary || "No feedback provided.";
+      const strengths = atsData.strengths?.length ? `\n\nStrengths:\n- ${atsData.strengths.join('\n- ')}` : '';
+      const improvements = atsData.improvements?.length ? `\n\nAreas for Improvement:\n- ${atsData.improvements.join('\n- ')}` : '';
+      
+      alert(`ATS Score: ${score}/100\n\nSummary:\n${summary}${strengths}${improvements}`);
+    } catch (error) {
+      console.log(error);
+      alert("Failed to analyze ATS score. Please try again.");
+    } finally {
+      setAnalyzing(false);
     }
   };
 
@@ -104,17 +133,27 @@ export default function ResumePreviewPage() {
             <div className="bg-white/80 backdrop-blur-md rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col gap-4">
               <h2 className="font-bold text-lg text-slate-900 mb-2">Actions</h2>
 
-              <button className="w-full group relative flex items-center justify-center gap-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white px-5 py-3.5 rounded-2xl font-bold shadow-lg shadow-violet-500/25 transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98]">
-                <Sparkles size={18} className="group-hover:animate-pulse" />
-                Analyze ATS Score
+              <button 
+                onClick={handleATSScore}
+                disabled={analyzing}
+                className="w-full group relative flex items-center justify-center gap-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white px-5 py-3.5 rounded-2xl font-bold shadow-lg shadow-violet-500/25 transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-70"
+              >
+                <Sparkles size={18} className={analyzing ? "animate-spin" : "group-hover:animate-pulse"} />
+                {analyzing ? "Analyzing..." : "Analyze ATS Score"}
               </button>
 
-              <button className="w-full flex items-center justify-center gap-3 bg-slate-900 hover:bg-slate-800 text-white px-5 py-3.5 rounded-2xl font-semibold transition-all duration-200 shadow-md active:scale-[0.98]">
+              <button 
+                onClick={() => window.print()}
+                className="w-full flex items-center justify-center gap-3 bg-slate-900 hover:bg-slate-800 text-white px-5 py-3.5 rounded-2xl font-semibold transition-all duration-200 shadow-md active:scale-[0.98]"
+              >
                 <Download size={18} />
                 Download PDF
               </button>
 
-              <button className="w-full flex items-center justify-center gap-3 bg-white hover:bg-slate-50 border-2 border-slate-200 text-slate-700 px-5 py-3.5 rounded-2xl font-semibold transition-all duration-200 active:scale-[0.98]">
+              <button 
+                onClick={() => router.push(`/resume/${resumeId}`)}
+                className="w-full flex items-center justify-center gap-3 bg-white hover:bg-slate-50 border-2 border-slate-200 text-slate-700 px-5 py-3.5 rounded-2xl font-semibold transition-all duration-200 active:scale-[0.98]"
+              >
                 <Eye size={18} />
                 Edit Resume
               </button>

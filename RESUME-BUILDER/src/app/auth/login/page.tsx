@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { ArrowRight, Lock, Mail, Sparkles } from "lucide-react";
 import { loginApi } from "@/apis/auth.api";
+import { isAxiosError } from "axios";
 
 type LoginFormData = {
   email: string;
@@ -17,6 +18,7 @@ export default function LoginPage() {
   const {
     register,
     handleSubmit,
+    setError,
     formState: {
       errors,
       isSubmitting,
@@ -31,11 +33,13 @@ export default function LoginPage() {
 
       router.push("/resume");
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      alert(
-        err?.response?.data?.message ||
-          "Login failed"
-      );
+      if (isAxiosError(error) && error.response) {
+        setError("root", { message: error.response.data.message || "Login failed" });
+      } else if (error instanceof Error) {
+        setError("root", { message: error.message });
+      } else {
+        setError("root", { message: "Login failed" });
+      }
     }
   };
 
@@ -116,6 +120,12 @@ export default function LoginPage() {
           </p>
 
           <form onSubmit={handleSubmit(onSubmit)} className="mt-10 space-y-6">
+            {errors.root && (
+              <div className="p-3 rounded-xl bg-rose-50/50 border border-rose-200 text-rose-600 text-sm font-medium flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-rose-600 shrink-0" />
+                {errors.root.message}
+              </div>
+            )}
             <div className="space-y-1.5">
               <label className="text-sm font-semibold text-slate-700 block">
                 Email Address
